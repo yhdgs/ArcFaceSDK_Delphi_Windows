@@ -13,7 +13,7 @@ uses Windows, Messages, SysUtils, System.Classes, math,
   arcsoft_fsdk_face_recognition,
   arcsoft_fsdk_face_tracking, asvloffscreendef, merrorDef,
   arcsoft_fsdk_age_estimation, arcsoft_fsdk_gender_estimation,
-  Vcl.Graphics, Vcl.Imaging.jpeg, System.Generics.Collections, hyieutils;
+  Vcl.Graphics, Vcl.Imaging.jpeg, System.Generics.Collections;
 
 type
 
@@ -644,13 +644,13 @@ begin
 end;
 
 {-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.DRAGfromFile
- 功能:      从IEBitmap中获取人脸位置、年龄、性别和特征信息列表
- 作者:      Bird
- 日期:      2017.09.25
- 参数:      AFileName: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
+  过程名:    TArcFaceSDK.DRAGfromJPGFile
+  功能:      从JPG文件中获取人脸位置、年龄、性别和特征信息列表
+  作者:      Bird
+  日期:      2018.01.31
+  参数:      AFileName: string; var AFaceInfos: TList<TFaceBaseInfo>; var AFaceModels: TFaceModels
+  返回值:    Boolean
+-------------------------------------------------------------------------------}
 function TArcFaceSDK.DRAGfromJPGFile(AFileName: string; var AFaceInfos:
   TList<TFaceBaseInfo>; var AFaceModels: TFaceModels): Boolean;
 var
@@ -670,13 +670,13 @@ begin
 end;
 
 {-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.DRAGfromBmp
- 功能:      从IEBitmap中获取人脸位置、年龄、性别和特征信息列表
- 作者:      Bird
- 日期:      2017.09.25
- 参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
+  过程名:    TArcFaceSDK.DRAGfromBmp
+  功能:      从Bitmap中获取人脸位置、年龄、性别和特征信息列表
+  作者:      Bird
+  日期:      2018.01.31
+  参数:      ABitmap: TBitmap; var AFaceInfos: TList<TFaceBaseInfo>; var AFaceModels: TFaceModels
+  返回值:    Boolean
+-------------------------------------------------------------------------------}
 function TArcFaceSDK.DRAGfromBmp(ABitmap: TBitmap; var AFaceInfos:
   TList<TFaceBaseInfo>; var AFaceModels: TFaceModels): Boolean;
 var
@@ -865,14 +865,15 @@ begin
 
 end;
 
+
 {-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.DRAGfromFile
- 功能:      从IEBitmap中获取人脸位置、年龄、性别和特征信息列表
- 作者:      Bird
- 日期:      2017.09.25
- 参数:      AFileName: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
+  过程名:    TArcFaceSDK.DRAGfromBmpFile
+  功能:      从BMP文件中获取人脸位置、年龄、性别和特征信息列表
+  作者:      Bird
+  日期:      2018.01.31
+  参数:      AFileName: string; var AFaceInfos: TList<TFaceBaseInfo>; var AFaceModels: TFaceModels
+  返回值:    Boolean
+-------------------------------------------------------------------------------}
 function TArcFaceSDK.DRAGfromBmpFile(AFileName: string; var AFaceInfos:
   TList<TFaceBaseInfo>; var AFaceModels: TFaceModels): Boolean;
 var
@@ -891,14 +892,15 @@ begin
   end;
 end;
 
+
 {-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.DrawFaceRectAgeGenderIE
- 功能:      在ImageEnView上画人脸框
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      ACanvas: TImageEnView; AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 12
- 返回值:    无
- -------------------------------------------------------------------------------}
+  过程名:    TArcFaceSDK.DrawFaceRectAgeGender
+  功能:      在Canvas上画人脸框、年龄、性别
+  作者:      Bird
+  日期:      2018.01.31
+  参数:      ACanvas: TCanvas; AFaceIdx: Integer; AFaceInfo: TFaceBaseInfo; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 0
+  返回值:    无
+-------------------------------------------------------------------------------}
 class procedure TArcFaceSDK.DrawFaceRectAgeGender(ACanvas: TCanvas; AFaceIdx:
   Integer; AFaceInfo: TFaceBaseInfo; AColor: TColor = clBlue; AWidth: Integer
   = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 0);
@@ -965,14 +967,15 @@ begin
 
 end;
 
+
 {-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.DrawFaceRectIE
- 功能:      在ImageEnView上画人脸框
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      ACanvas: TImageEnView; AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 12
- 返回值:    无
- -------------------------------------------------------------------------------}
+  过程名:    TArcFaceSDK.DrawFaceRect
+  功能:      在Canvas上画人脸框
+  作者:      Bird
+  日期:      2018.01.31
+  参数:      ACanvas: TCanvas; AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 0
+  返回值:    无
+-------------------------------------------------------------------------------}
 class procedure TArcFaceSDK.DrawFaceRect(ACanvas: TCanvas; AFaceIdx: Integer;
   AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer =
   2; ADrawIndex: Boolean = true; ATextSize: Integer = 0);
