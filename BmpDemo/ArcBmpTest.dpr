@@ -1,4 +1,4 @@
-program ArcTest;
+program ArcBmpTest;
 
 uses
   Vcl.Forms,
@@ -6,7 +6,6 @@ uses
   amcomDef in '..\amcomDef.pas',
   ammemDef in '..\ammemDef.pas',
   ArcFaceSDK in '..\ArcFaceSDK.pas',
-  ArcFaceSDKIEVersion in '..\ArcFaceSDKIEVersion.pas',
   arcsoft_fsdk_face_detection in '..\arcsoft_fsdk_face_detection.pas',
   arcsoft_fsdk_face_recognition in '..\arcsoft_fsdk_face_recognition.pas',
   arcsoft_fsdk_face_tracking in '..\arcsoft_fsdk_face_tracking.pas',

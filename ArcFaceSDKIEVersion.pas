@@ -1,7 +1,7 @@
-(* ******************************************************
-  * 虹软人脸识别SDK封装 ImageEN 版
-  * 版权所有 (C) 2017 NJTZ  eMail:yhdgs@qq.com
-  ****************************************************** *)
+(*******************************************************
+ * 虹软人脸识别SDK封装 ImageEN 版
+ * 版权所有 (C) 2017 NJTZ  eMail:yhdgs@qq.com
+ *******************************************************)
 
 unit ArcFaceSDKIEVersion;
 
@@ -84,13 +84,13 @@ type
     function DetectFacesFromIEBitmap(ABitmap: TIEBitmap; var AFaceRegions:
       TList<AFR_FSDK_FACEINPUT>; AOutIEBitmp: TIEBitmap; AUseCache: Boolean):
       Boolean; overload;
-    class procedure DrawFaceRectAgeGender(AView: TImageEnView; AFaceIdx: Integer;
+    class procedure DrawFaceRectAgeGenderEX(AView: TImageEnView;
+      AFaceIdx: Integer;
       AFaceInfo: TFaceBaseInfo; AColor: TColor = clBlue; AWidth: Integer = 2;
       ADrawIndex: Boolean = true; ATextSize: Integer = 0);
-    class procedure DrawFaceRect(AView: TImageEnView; AFaceIdx: Integer;
-      AFaceInfo:
-      AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2;
-      ADrawIndex: Boolean = true; ATextSize: Integer = 0);
+    class procedure DrawFaceRectEX(AView: TImageEnView; AFaceIdx: Integer;
+      AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer =
+      2; ADrawIndex: Boolean = true; ATextSize: Integer = 0);
     function ExtractFaceFeatureFromIEBitmap(AIEBitmap: TIEBitmap; AFaceRegion:
       AFR_FSDK_FACEINPUT; var AFaceModel: AFR_FSDK_FACEMODEL; AOutIEBitmp:
       TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter:
@@ -159,21 +159,21 @@ begin
   inherited;
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.CropFace
-  功能:      根据人脸框信息裁剪人脸到新文件
-  作者:      DelphiDX10
-  日期:      2017.09.26
-  参数:
-  ASouceIEBitmap, //源BMP
-  ADestBitmap: TIEBitmap;//目标BMP
-  AFaceRegion: AFR_FSDK_FACEINPUT;//人脸区域
-  AExtendRatio, //扩展比率，最小为0，实际应用再除以100
-  AResampleWidth, //目标图像宽度,0表示不变或随高度变动
-  AResampleHeight: Integer; //目标图像高度,0表示不变或随宽度变动
-  AResampleFilter: TResampleFilter//缩放滤镜
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.CropFace
+ 功能:      根据人脸框信息裁剪人脸到新文件
+ 作者:      DelphiDX10
+ 日期:      2017.09.26
+ 参数:
+ ASouceIEBitmap, //源BMP
+ ADestBitmap: TIEBitmap;//目标BMP
+ AFaceRegion: AFR_FSDK_FACEINPUT;//人脸区域
+ AExtendRatio, //扩展比率，最小为0，实际应用再除以100
+ AResampleWidth, //目标图像宽度,0表示不变或随高度变动
+ AResampleHeight: Integer; //目标图像高度,0表示不变或随宽度变动
+ AResampleFilter: TResampleFilter//缩放滤镜
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 class function TArcFaceSDKIEVersion.CropFace(ASouceIEBitmap, ADestBitmap:
   TIEBitmap; AFaceRegion: AFR_FSDK_FACEINPUT; AExtendRatio, AResampleWidth,
   AResampleHeight: Integer; AResampleFilter: TResampleFilter): Boolean;
@@ -282,14 +282,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromIEBitmap
-  功能:      从IEBitmap中获取人脸位置和特征信息列表
-  作者:      Bird
-  日期:      2017.09.25
-  参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromIEBitmap
+ 功能:      从IEBitmap中获取人脸位置和特征信息列表
+ 作者:      Bird
+ 日期:      2017.09.25
+ 参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromIEBitmap(ABitmap:
   TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels:
   TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight:
@@ -375,14 +375,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromIEBitmap
-  功能:      从IEBitmap中获取人脸位置和特征信息列表，缩放参数使用本对象实例的缩放参数属性
-  作者:      Bird
-  日期:      2017.09.25
-  参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap = nil
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromIEBitmap
+ 功能:      从IEBitmap中获取人脸位置和特征信息列表，缩放参数使用本对象实例的缩放参数属性
+ 作者:      Bird
+ 日期:      2017.09.25
+ 参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap = nil
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromIEBitmap(ABitmap:
   TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels:
   TFaceModels; AOutIEBitmp: TIEBitmap; AUseCache: Boolean): Boolean;
@@ -392,14 +392,14 @@ begin
     FContrastRatio, AUseCache);
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromBitmapEX
-  功能:      从标准Bitmap获取人脸位置和特征信息列表
-  作者:      Bird
-  日期:      2017.09.25
-  参数:      ABitmap: TBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromBitmapEX
+ 功能:      从标准Bitmap获取人脸位置和特征信息列表
+ 作者:      Bird
+ 日期:      2017.09.25
+ 参数:      ABitmap: TBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromBitmapEX(ABitmap:
   TBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels:
   TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight:
@@ -419,14 +419,14 @@ begin
   end;
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromBitmapEX
-  功能:      从标准位图中获取人脸位置、性别和年龄信息列表
-  作者:      DelphiDX10
-  日期:      2018.01.31
-  参数:      ABitmap: TBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter; AContrast: Double; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromBitmapEX
+ 功能:      从标准位图中获取人脸位置、性别和年龄信息列表
+ 作者:      DelphiDX10
+ 日期:      2018.01.31
+ 参数:      ABitmap: TBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter; AContrast: Double; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromBitmapEX(ABitmap:
   TBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap;
   AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter;
@@ -445,14 +445,14 @@ begin
   end;
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromFileEx
-  功能:      从图像文件中检测人脸位置信息列表并提取所有检测到的人脸特征信息
-  作者:      Bird
-  日期:      2017.11.19
-  参数:      AFileName: string; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromFileEx
+ 功能:      从图像文件中检测人脸位置信息列表并提取所有检测到的人脸特征信息
+ 作者:      Bird
+ 日期:      2017.11.19
+ 参数:      AFileName: string; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectAndRecognitionFacesFromFileEx(AFileName:
   string; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels:
   TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight:
@@ -480,14 +480,14 @@ begin
   end;
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DRAGfromIEBitmap
-  功能:      从IEBitmap中获取人脸位置、年龄、性别和特征信息列表
-  作者:      Bird
-  日期:      2017.09.25
-  参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DRAGfromIEBitmap
+ 功能:      从IEBitmap中获取人脸位置、年龄、性别和特征信息列表
+ 作者:      Bird
+ 日期:      2017.09.25
+ 参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DRAGfromIEBitmap(ABitmap: TIEBitmap; var
   AFaceInfos: TList<TFaceBaseInfo>; var AFaceModels: TFaceModels;
   AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer;
@@ -690,14 +690,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromIEBitmap
-  功能:      从TIEBitmap中获取人脸位置、性别和年龄信息列表,部分参数使用本对象属性
-  作者:      DelphiDX10
-  日期:      2018.01.31
-  参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromIEBitmap
+ 功能:      从TIEBitmap中获取人脸位置、性别和年龄信息列表,部分参数使用本对象属性
+ 作者:      DelphiDX10
+ 日期:      2018.01.31
+ 参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromIEBitmap(ABitmap:
   TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap;
   AUseCache: Boolean): Boolean;
@@ -707,14 +707,14 @@ begin
     FContrastRatio, AUseCache);
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromFileEx
-  功能:      从图像文件中获取人脸位置、性别和年龄信息列表
-  作者:      DelphiDX10
-  日期:      2018.01.31
-  参数:      AFileName: string; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter; AContrast: Double; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromFileEx
+ 功能:      从图像文件中获取人脸位置、性别和年龄信息列表
+ 作者:      DelphiDX10
+ 日期:      2018.01.31
+ 参数:      AFileName: string; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter; AContrast: Double; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromFileEx(AFileName:
   string; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap;
   AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter;
@@ -741,16 +741,16 @@ begin
   end;
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectFacesFromBmp
-  功能:      从IEBitmam中获取人脸位置信息列表
-  作者:      Bird
-  日期:      2017.09.24
-  参数:
-  ABitmap: TBitmap;
-  var AFaceRegions: TList<AFR_FSDK_FACEINPUT> //人脸位置信息列表
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectFacesFromBmp
+ 功能:      从IEBitmam中获取人脸位置信息列表
+ 作者:      Bird
+ 日期:      2017.09.24
+ 参数:
+ ABitmap: TBitmap;
+ var AFaceRegions: TList<AFR_FSDK_FACEINPUT> //人脸位置信息列表
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectFacesFromIEBitmap(ABitmap: TIEBitmap; var
   AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AOutIEBitmp: TIEBitmap;
   AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter;
@@ -802,14 +802,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectFacesFromBmpFile
-  功能:      从图像文件中获取人脸位置信息列表
-  作者:      Bird
-  日期:      2017.09.24
-  参数:      AFile: String; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectFacesFromBmpFile
+ 功能:      从图像文件中获取人脸位置信息列表
+ 作者:      Bird
+ 日期:      2017.09.24
+ 参数:      AFile: String; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectFacesFromFile(AFile: string; var
   AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AOutIEBitmp: TIEBitmap;
   AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter;
@@ -862,14 +862,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectFacesFromBmpFile
-  功能:      从文件中获取人脸位置信息列表
-  作者:      Bird
-  日期:      2017.09.24
-  参数:      AFile: String; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectFacesFromBmpFile
+ 功能:      从文件中获取人脸位置信息列表
+ 作者:      Bird
+ 日期:      2017.09.24
+ 参数:      AFile: String; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectFacesFromFile(AFile: string; var
   AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AOutIEBitmp: TIEBitmap; AUseCache:
   Boolean): Boolean;
@@ -879,14 +879,14 @@ begin
     AUseCache);
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DetectFacesFromIEBitmap
-  功能:      从IEBitmap中获取人脸位置信息列表
-  作者:      Bird
-  日期:      2017.09.25
-  参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AOutIEBitmp: TIEBitmap = nil
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DetectFacesFromIEBitmap
+ 功能:      从IEBitmap中获取人脸位置信息列表
+ 作者:      Bird
+ 日期:      2017.09.25
+ 参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AOutIEBitmp: TIEBitmap = nil
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectFacesFromIEBitmap(ABitmap: TIEBitmap; var
   AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AOutIEBitmp: TIEBitmap; AUseCache:
   Boolean): Boolean;
@@ -896,14 +896,14 @@ begin
     AUseCache);
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.TrackFacesFromIEBitmap
-  功能:      从IEBitmap中获取人脸位置信息列表（追踪模式）
-  作者:      Bird
-  日期:      2017.11.19
-  参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.TrackFacesFromIEBitmap
+ 功能:      从IEBitmap中获取人脸位置信息列表（追踪模式）
+ 作者:      Bird
+ 日期:      2017.11.19
+ 参数:      ABitmap: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.TrackFacesFromIEBitmap(ABitmap: TIEBitmap; var
   AFaceRegions: TList<AFR_FSDK_FACEINPUT>; AUseCache: Boolean): Boolean;
 var
@@ -953,155 +953,52 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DrawFaceRectAgeGender
-  功能:      在ImageEnView上画人脸框
-  作者:      Bird
-  日期:      2017.11.19
-  参数:      AView: TImageEnView; AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 12
-  返回值:    无
-  ------------------------------------------------------------------------------- }
-class procedure TArcFaceSDKIEVersion.DrawFaceRectAgeGender(AView: TImageEnView;
-  AFaceIdx: Integer; AFaceInfo: TFaceBaseInfo; AColor: TColor = clBlue;
-  AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 0);
-var
-  sText: string;
-  iTextHeight, iTextWidth: Integer;
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DrawFaceRectAgeGenderEX
+ 功能:      在ImageEnView上画人脸框
+ 作者:      Bird
+ 日期:      2017.11.19
+ 参数:      AView: TImageEnView; AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 12
+ 返回值:    无
+ -------------------------------------------------------------------------------}
+class procedure TArcFaceSDKIEVersion.DrawFaceRectAgeGenderEX(AView:
+  TImageEnView; AFaceIdx: Integer; AFaceInfo: TFaceBaseInfo; AColor: TColor =
+  clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer
+  = 0);
 begin
-  ATextSize := 0;
-  AView.IEBitmap.Canvas.Pen.Color := AColor;
-  AView.IEBitmap.Canvas.Pen.Width := AWidth;
-  AView.IEBitmap.Canvas.Brush.Style := bsClear;
-  if ATextSize = 0 then
-    AView.IEBitmap.Canvas.Font.Size :=
-      Round((AFaceInfo.FaceRect.bottom - AFaceInfo.FaceRect.top) / (10 * 1.5))
-  else
-    AView.IEBitmap.Canvas.Font.Size := ATextSize;
-  AView.IEBitmap.Canvas.Font.Color := AColor;
-  AView.IEBitmap.Canvas.RoundRect(AFaceInfo.FaceRect.left,
-    AFaceInfo.FaceRect.top,
-    AFaceInfo.FaceRect.right, AFaceInfo.FaceRect.bottom, 0, 0);
-
-  sText := '';
-  case AFaceInfo.Gender of
-    0:
-      sText := '性别:男';
-    1:
-      sText := '性别:女';
-  else
-    sText := '性别:未知';
-  end;
-
-  sText := sText + ' 年龄:' + IntToStr(AFaceInfo.Age);
-
-  if ADrawIndex then
-  begin
-    if AFaceIdx <> -1 then
-      sText := IntToStr(AFaceIdx) + ' ' + sText;
-  end;
-
-  if sText <> '' then
-  begin
-    iTextWidth := AView.IEBitmap.Canvas.TextWidth(sText);
-    iTextHeight := AView.IEBitmap.Canvas.TextHeight(sText);
-
-    AView.IEBitmap.Canvas.Brush.Style := bsSolid;
-    AView.IEBitmap.Canvas.Brush.Color := AColor;
-    if AView.IEBitmap.Canvas.Brush.Color = clWhite then
-      AView.IEBitmap.Canvas.Font.Color := clBlack
-    else
-      AView.IEBitmap.Canvas.Font.Color := clWhite;
-    AView.IEBitmap.Canvas.Font.Quality := fqClearType;
-
-    AView.IEBitmap.Canvas.RoundRect(AFaceInfo.FaceRect.left,
-      AFaceInfo.FaceRect.top - iTextHeight - 6,
-      Max(AFaceInfo.FaceRect.right,
-      AFaceInfo.FaceRect.left + iTextWidth + 10),
-      AFaceInfo.FaceRect.top, 0, 0);
-
-    AView.IEBitmap.Canvas.TextOut(AFaceInfo.FaceRect.left + 5,
-      AFaceInfo.FaceRect.top - 3 - iTextHeight, sText);
-  end;
-
+  DrawFaceRectAgeGender(AView.IEBitmap.Canvas, AFaceIdx, AFaceInfo, AColor,
+    AWidth, ADrawIndex, ATextSize);
   AView.Update;
-
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DrawFaceRect
-  功能:      在ImageEnView上画人脸框
-  作者:      Bird
-  日期:      2017.11.19
-  参数:      AView: TImageEnView; AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 12
-  返回值:    无
-  ------------------------------------------------------------------------------- }
-class procedure TArcFaceSDKIEVersion.DrawFaceRect(AView: TImageEnView;
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DrawFaceRectEX
+ 功能:      在ImageEnView上画人脸框
+ 作者:      Bird
+ 日期:      2017.11.19
+ 参数:      AView: TImageEnView; AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 12
+ 返回值:    无
+ -------------------------------------------------------------------------------}
+class procedure TArcFaceSDKIEVersion.DrawFaceRectEX(AView: TImageEnView;
   AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue;
   AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 0);
-var
-  sText: string;
-  iTextHeight, iTextWidth: Integer;
 begin
-  ATextSize := 0;
-  AView.IEBitmap.Canvas.Pen.Color := AColor;
-  AView.IEBitmap.Canvas.Pen.Width := AWidth;
-  AView.IEBitmap.Canvas.Brush.Style := bsClear;
-  if ATextSize = 0 then
-    AView.IEBitmap.Canvas.Font.Size :=
-      Round((AFaceInfo.rcFace.bottom - AFaceInfo.rcFace.top) / (10 * 1.5))
-  else
-    AView.IEBitmap.Canvas.Font.Size := ATextSize;
-  AView.IEBitmap.Canvas.Font.Color := AColor;
-  AView.IEBitmap.Canvas.RoundRect(AFaceInfo.rcFace.left,
-    AFaceInfo.rcFace.top,
-    AFaceInfo.rcFace.right, AFaceInfo.rcFace.bottom, 0, 0);
-
-  sText := '';
-  if ADrawIndex then
-  begin
-    if AFaceIdx <> -1 then
-      sText := IntToStr(AFaceIdx);
-  end;
-
-  if sText <> '' then
-  begin
-    iTextWidth := AView.IEBitmap.Canvas.TextWidth(sText);
-    iTextHeight := AView.IEBitmap.Canvas.TextHeight(sText);
-
-    AView.IEBitmap.Canvas.Brush.Style := bsSolid;
-    AView.IEBitmap.Canvas.Brush.Color := AColor;
-    if AView.IEBitmap.Canvas.Brush.Color = clWhite then
-      AView.IEBitmap.Canvas.Font.Color := clBlack
-    else
-      AView.IEBitmap.Canvas.Font.Color := clWhite;
-    AView.IEBitmap.Canvas.Font.Quality := fqClearType;
-
-    AView.IEBitmap.Canvas.RoundRect(AFaceInfo.rcFace.left,
-      AFaceInfo.rcFace.top - iTextHeight - 6,
-      Max(AFaceInfo.rcFace.right,
-      AFaceInfo.rcFace.left + iTextWidth + 10),
-      AFaceInfo.rcFace.top, 0, 0);
-
-    AView.IEBitmap.Canvas.TextOut(Round((AFaceInfo.rcFace.left - iTextWidth) /
-      2), AFaceInfo.rcFace.top - 3 - iTextHeight, sText);
-
-  end;
-
+  DrawFaceRect(AView.IEBitmap.Canvas, AFaceIdx, AFaceInfo, AColor, AWidth,
+    ADrawIndex, ATextSize);
   AView.Update;
-
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.ExtractFaceFeatureFromBmp
-  功能:      从IEBitmap中提取单个人脸特征
-  作者:      Bird
-  日期:      2017.09.24
-  参数:
-  AFaceInput: ASVLOFFSCREEN; //图片数据
-  AFaceRegion: AFR_FSDK_FACEINPUT; //人脸位置信息
-  var AFaceModel: AFR_FSDK_FACEMODEL //人脸特征，特征数据内存需手动使用freemem释放
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.ExtractFaceFeatureFromBmp
+ 功能:      从IEBitmap中提取单个人脸特征
+ 作者:      Bird
+ 日期:      2017.09.24
+ 参数:
+ AFaceInput: ASVLOFFSCREEN; //图片数据
+ AFaceRegion: AFR_FSDK_FACEINPUT; //人脸位置信息
+ var AFaceModel: AFR_FSDK_FACEMODEL //人脸特征，特征数据内存需手动使用freemem释放
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.ExtractFaceFeatureFromIEBitmap(AIEBitmap:
   TIEBitmap;
   AFaceRegion:
@@ -1158,14 +1055,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.MatchFaceWithIEBitmaps
-  功能:      比对两张人脸IEBitmap（只比对第一个人脸）
-  作者:      Bird
-  日期:      2017.11.19
-  参数:      AInBitmap1, AInBitmap2, AOutIEBitmp1, AOutIEBitmp2: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter; AUseCache: Boolean
-  返回值:    Single
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.MatchFaceWithIEBitmaps
+ 功能:      比对两张人脸IEBitmap（只比对第一个人脸）
+ 作者:      Bird
+ 日期:      2017.11.19
+ 参数:      AInBitmap1, AInBitmap2, AOutIEBitmp1, AOutIEBitmp2: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter; AUseCache: Boolean
+ 返回值:    Single
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.MatchFaceWithIEBitmaps(AInBitmap1,
   AInBitmap2,
   AOutIEBitmp1, AOutIEBitmp2: TIEBitmap;
@@ -1234,14 +1131,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.MatchFaceWithIEBitmaps
-  功能:      比对两张人脸IEBitmap（只比对第一个人脸）
-  作者:      Bird
-  日期:      2017.11.19
-  参数:      AInBitmap1, AInBitmap2, AOutIEBitmp1, AOutIEBitmp2: TIEBitmap; AUseCache: Boolean
-  返回值:    Single
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.MatchFaceWithIEBitmaps
+ 功能:      比对两张人脸IEBitmap（只比对第一个人脸）
+ 作者:      Bird
+ 日期:      2017.11.19
+ 参数:      AInBitmap1, AInBitmap2, AOutIEBitmp1, AOutIEBitmp2: TIEBitmap; AUseCache: Boolean
+ 返回值:    Single
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.MatchFaceWithIEBitmaps(AInBitmap1, AInBitmap2,
   AOutIEBitmp1, AOutIEBitmp2: TIEBitmap;
   AContrast:
@@ -1254,14 +1151,14 @@ begin
     AUseCache);
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.ReadFromFile
-  功能:      从文件中读取，支持所有ImageEN支持的格式
-  作者:      Bird
-  日期:      2017.09.25
-  参数:      AFilename: string; var AImgData: TImgdataInfo; AOutIEBitmp: TIEBitmap; AResampleWidth: Integer = 0; AResampleHeight: Integer = 0; AResampleFilter: TResampleFilter = rfNone
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.ReadFromFile
+ 功能:      从文件中读取，支持所有ImageEN支持的格式
+ 作者:      Bird
+ 日期:      2017.09.25
+ 参数:      AFilename: string; var AImgData: TImgdataInfo; AOutIEBitmp: TIEBitmap; AResampleWidth: Integer = 0; AResampleHeight: Integer = 0; AResampleFilter: TResampleFilter = rfNone
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 class
   function TArcFaceSDKIEVersion.ReadFromFile(AFileName: string;
   var
@@ -1297,14 +1194,14 @@ begin
   end;
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.ReadIEBitmap
-  功能:      从IEBitmap中读取
-  作者:      Bird
-  日期:      2017.11.19
-  参数:      ABitmap: TIEBitmap; var AImgDataInfo: TImgdataInfo; AOutIEBitmp: TIEBitmap; AResampleWidth: Integer = 0; AResampleHeight: Integer = 0; AResampleFilter: TResampleFilter = rfNone
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.ReadIEBitmap
+ 功能:      从IEBitmap中读取
+ 作者:      Bird
+ 日期:      2017.11.19
+ 参数:      ABitmap: TIEBitmap; var AImgDataInfo: TImgdataInfo; AOutIEBitmp: TIEBitmap; AResampleWidth: Integer = 0; AResampleHeight: Integer = 0; AResampleFilter: TResampleFilter = rfNone
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 class
   function TArcFaceSDKIEVersion.ReadIEBitmap(ABitmap: TIEBitmap;
   var
@@ -1356,16 +1253,16 @@ begin
         proc.Resample(iNewWidth, iNewHeight, AResampleFilter);
       end
       {
-        else if (AResampleWidth < 0) and (AResampleHeight < 0) then
-        begin
-        if lBitMap.Width < Abs(AResampleWidth) then
-        proc.Resample(Abs(AResampleWidth),
-        Round(Abs(AResampleWidth) / lBitMap.Width *
-        lBitMap.Height), AResampleFilter)
-        else if lBitMap.Height < Abs(AResampleHeight) then
-        proc.Resample(Round(Abs(AResampleHeight) / lBitMap.Height *
-        lBitMap.Width), Abs(AResampleHeight), AResampleFilter)
-        end
+       else if (AResampleWidth < 0) and (AResampleHeight < 0) then
+       begin
+       if lBitMap.Width < Abs(AResampleWidth) then
+       proc.Resample(Abs(AResampleWidth),
+       Round(Abs(AResampleWidth) / lBitMap.Width *
+       lBitMap.Height), AResampleFilter)
+       else if lBitMap.Height < Abs(AResampleHeight) then
+       proc.Resample(Round(Abs(AResampleHeight) / lBitMap.Height *
+       lBitMap.Width), Abs(AResampleHeight), AResampleFilter)
+       end
       }
       //如果指定宽小于0，则检查当前宽是否小于指定宽的绝对值，
       //如果小于的则以宽度为基准进行调整
@@ -1433,12 +1330,12 @@ begin
   end;
 
   {
-    LastLP := lBitMap.ScanLine[lBitMap.Height - 1];
-    for i := 0 to lBitMap.Height - 1 do
-    begin
-    CopyMemory(Pointer(AImgDataInfo.pImgData + i * iLineByte),
-    Pointer(Int64(LastLP) - i * iLineByte), iLineByte);
-    end;
+   LastLP := lBitMap.ScanLine[lBitMap.Height - 1];
+   for i := 0 to lBitMap.Height - 1 do
+   begin
+   CopyMemory(Pointer(AImgDataInfo.pImgData + i * iLineByte),
+   Pointer(Int64(LastLP) - i * iLineByte), iLineByte);
+   end;
   }
 
   for i := lBitMap.Height - 1 downto 0 do
@@ -1456,14 +1353,14 @@ begin
   Result := true;
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.TrackFacesAndAgeGenderFromIEBitmap
-  功能:      从IEBitmap中获取人脸位置、性别和年龄信息列表（追踪模式）
-  作者:      DelphiDX10
-  日期:      2018.01.31
-  参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.TrackFacesAndAgeGenderFromIEBitmap
+ 功能:      从IEBitmap中获取人脸位置、性别和年龄信息列表（追踪模式）
+ 作者:      DelphiDX10
+ 日期:      2018.01.31
+ 参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.TrackFacesAndAgeGenderFromIEBitmap(ABitmap:
   TIEBitmap;
   var
@@ -1609,14 +1506,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.TrackFacesAndAgeGenderFromIEBitmap1
-  功能:      从IEBitmap中获取人脸位置、性别和年龄信息列表
-  作者:      DelphiDX10
-  日期:      2018.01.31
-  参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.TrackFacesAndAgeGenderFromIEBitmap1
+ 功能:      从IEBitmap中获取人脸位置、性别和年龄信息列表
+ 作者:      DelphiDX10
+ 日期:      2018.01.31
+ 参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DetectFacesAndAgeGenderFromIEBitmap(ABitmap:
   TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap;
   AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter;
@@ -1759,14 +1656,14 @@ begin
 
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DRAGfromIEBitmap
-  功能:      从TIEBitmap中获取人脸位置、性别和年龄信息列表,部分参数使用本对象属性
-  作者:      DelphiDX10
-  日期:      2018.01.31
-  参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DRAGfromIEBitmap
+ 功能:      从TIEBitmap中获取人脸位置、性别和年龄信息列表,部分参数使用本对象属性
+ 作者:      DelphiDX10
+ 日期:      2018.01.31
+ 参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DRAGfromIEBitmap(ABitmap: TIEBitmap; var
   AFaceInfos: TList<TFaceBaseInfo>; var AFaceModels: TFaceModels;
   AOutIEBitmp: TIEBitmap; AUseCache: Boolean): Boolean;
@@ -1776,14 +1673,14 @@ begin
     FContrastRatio, AUseCache);
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DRAGfromFile
-  功能:      从TIEBitmap中获取人脸位置、性别和年龄信息列表,部分参数使用本对象属性
-  作者:      DelphiDX10
-  日期:      2018.01.31
-  参数:      AFileName: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AUseCache: Boolean
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DRAGfromFile
+ 功能:      从TIEBitmap中获取人脸位置、性别和年龄信息列表,部分参数使用本对象属性
+ 作者:      DelphiDX10
+ 日期:      2018.01.31
+ 参数:      AFileName: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AOutIEBitmp: TIEBitmap; AUseCache: Boolean
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DRAGfromFile(AFileName: string; var AFaceInfos:
   TList<TFaceBaseInfo>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap;
   AUseCache: Boolean): Boolean;
@@ -1793,14 +1690,14 @@ begin
     FContrastRatio, AUseCache);
 end;
 
-{ -------------------------------------------------------------------------------
-  过程名:    TArcFaceSDKIEVersion.DRAGfromFile
-  功能:      从IEBitmap中获取人脸位置、年龄、性别和特征信息列表
-  作者:      Bird
-  日期:      2017.09.25
-  参数:      AFileName: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
-  返回值:    Boolean
-  ------------------------------------------------------------------------------- }
+{-------------------------------------------------------------------------------
+ 过程名:    TArcFaceSDKIEVersion.DRAGfromFile
+ 功能:      从IEBitmap中获取人脸位置、年龄、性别和特征信息列表
+ 作者:      Bird
+ 日期:      2017.09.25
+ 参数:      AFileName: TIEBitmap; var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter
+ 返回值:    Boolean
+ -------------------------------------------------------------------------------}
 function TArcFaceSDKIEVersion.DRAGfromFile(AFileName: string; var AFaceInfos:
   TList<TFaceBaseInfo>; var AFaceModels: TFaceModels; AOutIEBitmp: TIEBitmap;
   AResampleWidth, AResampleHeight: Integer; AResampleFilter: TResampleFilter;

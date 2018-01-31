@@ -28,12 +28,13 @@ type
     procedure btn2Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     FArcIESDK: TArcFaceSDKIEVersion;
     FFaceModels1, FFaceModels2: TFaceModels;
     FFaceInfo1, FFaceInfo2: TList<TFaceBaseInfo>;
   public
-    { Public declarations }
+    {Public declarations}
   end;
 
 var
@@ -59,7 +60,7 @@ begin
 
     //画人脸框
     for i := 0 to FFaceInfo1.Count - 1 do
-      FArcIESDK.DrawFaceRectAgeGender(ImageEnView1, i + 1, FFaceInfo1.Items[i],
+      FArcIESDK.DrawFaceRectAgeGenderEx(ImageEnView1, i + 1, FFaceInfo1.Items[i],
         clBlue, 3, true, 12);
 
     if (FFaceModels1.Count > 0) and (FFaceModels2.Count > 0) then
@@ -81,7 +82,8 @@ begin
       FFaceInfo2, FFaceModels2, ImageEnView2.IEBitmap, 800, 0,
       rfLanczos3, 0, False);
     for i := 0 to FFaceInfo2.Count - 1 do
-      FArcIESDK.DrawFaceRectAgeGender(ImageEnView2, i + 1, FFaceInfo2.Items[i]);
+      FArcIESDK.DrawFaceRectAgeGenderEx(ImageEnView2, i + 1,
+        FFaceInfo2.Items[i]);
     if (FFaceModels1.Count > 0) and (FFaceModels2.Count > 0) then
       lbl1.Caption := Format('相似度：%.2f%%',
         [FArcIESDK.MatchFace(FFaceModels1.Items[0],
@@ -125,6 +127,11 @@ begin
     //初始化性别识别引擎
     InitialFaceGenderEngine(False);
   end;
+end;
+
+procedure TForm1.FormResize(Sender: TObject);
+begin
+  pnl1.Width := Round(Self.Width / 2);
 end;
 
 end.

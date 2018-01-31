@@ -13,6 +13,7 @@ object Form1: TForm1
   OldCreateOrder = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object spl1: TSplitter
@@ -29,33 +30,35 @@ object Form1: TForm1
     Width = 361
     Height = 543
     Align = alLeft
-    BevelOuter = bvNone
-    Caption = 'pnl1'
+    ShowCaption = False
     TabOrder = 0
-    object ImageEnView1: TImageEnView
-      Left = 0
-      Top = 0
-      Width = 361
-      Height = 502
-      Background = clBtnFace
-      ParentCtl3D = False
-      AutoFit = True
-      EnableInteractionHints = True
+    object img1: TImage
+      Left = 1
+      Top = 1
+      Width = 359
+      Height = 500
       Align = alClient
-      TabOrder = 0
+      Stretch = True
+      ExplicitLeft = 80
+      ExplicitTop = 88
+      ExplicitWidth = 105
+      ExplicitHeight = 105
     end
     object pnl3: TPanel
-      Left = 0
-      Top = 502
-      Width = 361
+      Left = 1
+      Top = 501
+      Width = 359
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
       Caption = 'pnl3'
       ShowCaption = False
-      TabOrder = 1
+      TabOrder = 0
+      ExplicitLeft = 0
+      ExplicitTop = 502
+      ExplicitWidth = 361
       DesignSize = (
-        361
+        359
         41)
       object btn1: TButton
         Left = 24
@@ -75,21 +78,37 @@ object Form1: TForm1
     Width = 378
     Height = 543
     Align = alClient
-    BevelOuter = bvNone
     Caption = 'pnl1'
+    ShowCaption = False
     TabOrder = 1
+    object img2: TImage
+      Left = 1
+      Top = 1
+      Width = 376
+      Height = 500
+      Align = alClient
+      Center = True
+      Stretch = True
+      ExplicitLeft = 88
+      ExplicitTop = 96
+      ExplicitWidth = 105
+      ExplicitHeight = 105
+    end
     object pnl4: TPanel
-      Left = 0
-      Top = 502
-      Width = 378
+      Left = 1
+      Top = 501
+      Width = 376
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
       Caption = 'pnl4'
       ShowCaption = False
       TabOrder = 0
+      ExplicitLeft = 0
+      ExplicitTop = 502
+      ExplicitWidth = 378
       DesignSize = (
-        378
+        376
         41)
       object btn2: TButton
         Left = 28
@@ -101,18 +120,6 @@ object Form1: TForm1
         TabOrder = 0
         OnClick = btn2Click
       end
-    end
-    object ImageEnView2: TImageEnView
-      Left = 0
-      Top = 0
-      Width = 378
-      Height = 502
-      Background = clBtnFace
-      ParentCtl3D = False
-      AutoFit = True
-      EnableInteractionHints = True
-      Align = alClient
-      TabOrder = 1
     end
   end
   object pnl5: TPanel
@@ -138,7 +145,7 @@ object Form1: TForm1
     end
   end
   object OpenDialog1: TOpenDialog
-    Left = 712
+    Left = 344
     Top = 120
   end
 end
