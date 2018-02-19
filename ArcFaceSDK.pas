@@ -19,35 +19,41 @@ type
 
   TOnLogEvent = procedure(Const Msg: String) of object;
 
+  //图像数据信息结构
   TImgDataInfo = record
     pImgData: PByte;
     Width: Integer;
     Height: Integer;
     LineBytes: Integer;
     BitCount: Integer;
+  public
+    procedure Init;
   end;
 
+  //人脸基本信息
   TFaceBaseInfo = record
-    FaceRect: MRECT;
-    FaceOrient: Integer;
-    Age: Integer;
-    Gender: Integer;
+    FaceRect: MRECT; //人脸矩形框
+    FaceOrient: Integer; //人脸方向
+    Age: Integer; //年龄
+    Gender: Integer; //性别，0男，1女
   private
   public
     procedure Init;
   end;
 
+  //人脸基本信息
   TFaceFullInfo = record
-    FaceRect: MRECT;
-    FaceOrient: Integer;
-    Age: Integer;
-    Gender: Integer;
-    Model: AFR_FSDK_FACEMODEL;
+    FaceRect: MRECT; //人脸矩形框
+    FaceOrient: Integer; //人脸方向
+    Age: Integer; //年龄
+    Gender: Integer; //性别，0男，1女
+    Model: AFR_FSDK_FACEMODEL; //人脸特征
   private
   public
     procedure Init;
   end;
 
+  //人脸特征集
   TFaceModels = class(TObject)
   private
     FModels: TList<AFR_FSDK_FACEMODEL>;
@@ -67,6 +73,7 @@ type
     property Items[Index: Integer]: AFR_FSDK_FACEMODEL read GetItems;
   end;
 
+  //ArcFaceSDK封装主类
   TArcFaceSDK = class(TObject)
   private
     FAppID: string;
@@ -153,18 +160,18 @@ type
     function UnInitialFaceDetectionEngine: Integer;
     function UnInitialFaceTrackingEngine: Integer;
     function UnInitialFaceRecognitionEngine: Integer;
-    class function ReadBmp(ABitmap: TBitmap; var AImgData: PByte; var AWidth,
-      AHeight, ALineBytes: Integer): Boolean;
-    class function ReadBmpFile(AFileName: string; var AImgData: PByte;
-      var AWidth,
-      AHeight, ALineBytes: Integer): Boolean; overload;
+    class function ReadBmp(ABitmap: TBitmap; var AImgDataInfo: TImgDataInfo):
+      Boolean;
+    class function ReadBmpFile(AFileName: string;
+      var AImgDataInfo: TImgDataInfo):
+      Boolean; overload;
     class function ReadBmpFile(AFileName: string; ABitmap: TBitmap): Boolean;
       overload;
-    class function ReadJpegFile(AFileName: string; var AImgData: PByte;
-      var AWidth,
-      AHeight, ABitCount: Integer): Boolean; overload;
-    class function ReadBmpStream(AStream: TMemoryStream; var AImgData: PByte; var
-      AWidth, AHeight, ALineBytes: Integer): Boolean;
+    class function ReadJpegFile(AFileName: string;
+      var AImgDataInfo: TImgDataInfo):
+      Boolean; overload;
+    class function ReadBmpStream(AStream: TMemoryStream; var AImgDataInfo:
+      TImgDataInfo): Boolean;
     class function ReadJpegFile(AFileName: string; ABitmap: TBitmap): Boolean;
       overload;
     function TrackFacesAndAgeGenderFromBmp(ABitmap: TBitmap; var AFaceInfos:
@@ -191,6 +198,7 @@ type
       write FWorkKBufferSize;
   end;
 
+  //自定义TJpegImage
   TuJpegImage = class(TJPEGImage)
   public
     function BitmapData: TBitmap;
@@ -215,17 +223,17 @@ constructor TArcFaceSDK.Create;
 begin
   inherited;
 
-  FAppID := Your Key;
+  FAppID := 您的Key;
   //人脸检测(FD) Key
-  FFaceDetectionKey := 'Your Key';
+  FFaceDetectionKey := '您的Key';
   //人脸识别(FR) Key
-  FFaceRecognitionKey := 'Your Key';
+  FFaceRecognitionKey := '您的Key';
   //人脸追踪(FT) Key
-  FFaceTrackingKey := 'Your Key';
+  FFaceTrackingKey := '您的Key';
   //年龄识别(Age)Key
-  FFaceAgeKey := 'Your Key';
-  //性别识别(Gender)Key
-  FFaceGenderKey := 'Your Key';
+  FFaceAgeKey := '您的Key';
+  //性别评估(Gender)Key
+  FFaceGenderKey := '您的Key';
 
   FWorkKBufferSize := 40 * 1024 * 1024;
   FEstimationBufferSize := 30 * 1024 * 1024;
@@ -257,22 +265,14 @@ begin
   inherited;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.DetectAndRecognitionFacesFromBmp
- 功能:      检测人脸位置并提取特征（支持多人脸）
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      ABitmap: TBitmap; //源位图
- var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; //输出人脸位置信息列表
- var AFaceModels: TFaceModels //输出人脸特征信息
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.DetectAndRecognitionFacesFromBmp(ABitmap: TBitmap; var
-  AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels):
-  Boolean;
+//检测人脸位置并提取特征（支持多人脸）
+function TArcFaceSDK.DetectAndRecognitionFacesFromBmp(
+  ABitmap: TBitmap; //源位图
+  var AFaceRegions: TList<AFR_FSDK_FACEINPUT>; //输出人脸位置信息列表
+  var AFaceModels: TFaceModels//输出人脸特征信息
+  ): Boolean;
 var
-  pImgData: PByte;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
   nRet: MRESULT;
@@ -288,11 +288,10 @@ begin
   if AFaceRegions = nil then
     AFaceRegions := TList<AFR_FSDK_FACEINPUT>.Create;
 
-  pImgData := nil;
 {$IFDEF DEBUG}
   T := GetTickCount;
 {$ENDIF}
-  if not ReadBmp(ABitmap, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmp(ABitmap, lImgDataInfo) then
     Exit;
 {$IFDEF DEBUG}
   T := GetTickCount - T;
@@ -302,11 +301,11 @@ begin
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
 
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
   //人脸检测
 {$IFDEF DEBUG}
   T := GetTickCount;
@@ -333,23 +332,18 @@ begin
 {$ENDIF}
   end;
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.TrackFacesAndAgeGenderFromIEBitmap1
- 功能:      从Bitmap中获取人脸位置、性别和年龄信息列表
- 作者:      DelphiDX10
- 日期:      2018.01.31
- 参数:      ABitmap: TBitmap; var AFaceInfos: TList<TFaceBaseInfo>
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.DetectFacesAndAgeGenderFromBitmap(ABitmap: TBitmap; var
-  AFaceInfos: TList<TFaceBaseInfo>): Boolean;
+//从Bitmap中获取人脸位置、性别和年龄信息列表
+function TArcFaceSDK.DetectFacesAndAgeGenderFromBitmap(
+  ABitmap: TBitmap; //源位图
+  var AFaceInfos: TList<TFaceBaseInfo>//输出人脸信息
+  ): Boolean;
 var
-  pImgData: PByte;
+  lImgDataInfo: TImgDataInfo;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
   lFaceRes_Age: ASAE_FSDK_AGEFACEINPUT;
@@ -361,7 +355,6 @@ var
   lGenders: TArray<Integer>;
   lFaceInfo: TFaceBaseInfo;
   i, iFaces: Integer;
-  iWidth, iHeight, iLineBytes: Integer;
   ArrFaceOrient: array of AFD_FSDK_OrientCode;
   ArrFaceRect: array of MRECT;
 begin
@@ -373,21 +366,21 @@ begin
   if FFaceDetectionEngine = nil then
     Exit;
 
-  pImgData := nil;
-
-  if not ReadBmp(ABitmap, pImgData, iWidth, iHeight, iLineBytes)
+  //从源位图中读取数据
+  if not ReadBmp(ABitmap, lImgDataInfo)
   then
     Exit;
 
+  //初始化数据输入信息
   offInput.u32PixelArrayFormat := ASVL_PAF_RGB24_B8G8R8;
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
 
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
 
   lFaceRegions := TList<AFR_FSDK_FACEINPUT>.Create;
   try
@@ -419,19 +412,16 @@ begin
           end;
 
           if ASAE_FSDK_AgeEstimation_StaticImage(
-            FFaceAgeEngine, //[in] age estimation engine
-            @offInput, //[in] the original image information
-            //[in] the face rectangles information
-            @lFaceRes_Age,
-            //[out] the results of age estimation
-            lAgeRes
+            FFaceAgeEngine, //[in]年龄评估引擎实例句柄
+            @offInput, //[in]图像数据
+            @lFaceRes_Age, //[in]人脸框信息
+            lAgeRes//[out]年龄评估结果
             ) = MOK then
             //分解人脸年龄
             ExtractFaceAges(lAgeRes, lAges);
-
         end;
 
-        //检测性别
+        //性别评估
         if (FFaceGenderEngine <> nil) then
         begin
           with lFaceRes_Gender do
@@ -442,12 +432,10 @@ begin
           end;
 
           if ASGE_FSDK_GenderEstimation_StaticImage(
-            FFaceGenderEngine, //[in] Gender estimation engine
-            @offInput, //[in] the original imGender information
-            //[in] the face rectangles information
-            @lFaceRes_Gender,
-            //[out] the results of Gender estimation
-            lGenderRes
+            FFaceGenderEngine, //[in]性别评估引擎实例句柄
+            @offInput, //[in]图像数据
+            @lFaceRes_Gender, //[in]人脸框信息
+            lGenderRes//[out]性别评估结果
             ) = MOK then
             //分解人脸性别
             ExtractFaceGenders(lGenderRes, lGenders);
@@ -472,25 +460,18 @@ begin
     FreeAndNil(lFaceRegions);
   end;
 
-  if pImgData <> nil then
-    FreeMem(pImgData)
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData)
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.DetectFacesFromBmp
- 功能:      从位图中获取人脸位置信息列表
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      ABitmap: TBitmap;//源位图
- var AFaceRegions: TList<AFR_FSDK_FACEINPUT> //输出人脸位置列表
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.DetectFacesFromBmp(ABitmap: TBitmap; var AFaceRegions:
-  TList<AFR_FSDK_FACEINPUT>): Boolean;
+//从位图中获取人脸位置信息列表
+function TArcFaceSDK.DetectFacesFromBmp(
+  ABitmap: TBitmap; //源位图
+  var AFaceRegions: TList<AFR_FSDK_FACEINPUT>//输出人脸位置列表
+  ): Boolean;
 var
-  pImgData: PByte;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
 begin
@@ -499,21 +480,19 @@ begin
   if FFaceDetectionEngine = nil then
     Exit;
 
-  pImgData := nil;
-
   //读取位图到内存中
-  if not ReadBmp(ABitmap, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmp(ABitmap, lImgDataInfo) then
     Exit;
 
   offInput.u32PixelArrayFormat := ASVL_PAF_RGB24_B8G8R8;
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
 
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
   //调用API检测人脸
   if AFD_FSDK_StillImageFaceDetection(FFaceDetectionEngine, @offInput, pFaceRes)
     = MOK then
@@ -522,25 +501,18 @@ begin
     ExtractFaceBoxs(pFaceRes^, AFaceRegions);
   end;
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.TrackFacesFromBmp
- 功能:      获取人脸位置信息列表
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      ABitmap: TBitmap; //源位图
- var AFaceRegions: TList<AFR_FSDK_FACEINPUT> //输出人脸位置信息列表
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.TrackFacesFromBmp(ABitmap: TBitmap; var AFaceRegions:
-  TList<AFR_FSDK_FACEINPUT>): Boolean;
+//获取人脸位置信息列表，跟踪模式
+function TArcFaceSDK.TrackFacesFromBmp(
+  ABitmap: TBitmap; //源位图
+  var AFaceRegions: TList<AFR_FSDK_FACEINPUT>//输出人脸位置信息列表
+  ): Boolean;
 var
-  pImgData: PByte;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFT_FSDK_FACERES;
 begin
@@ -549,20 +521,18 @@ begin
   if FFaceTrackingEngine = nil then
     Exit;
 
-  pImgData := nil;
-
-  if not ReadBmp(ABitmap, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmp(ABitmap, lImgDataInfo) then
     Exit;
 
   offInput.u32PixelArrayFormat := ASVL_PAF_RGB24_B8G8R8;
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
 
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
   //offInput.pi32Pitch[1] := offInput.i32Width div 2;
   //offInput.pi32Pitch[2] := offInput.i32Width div 2;
   //人脸检测
@@ -572,22 +542,16 @@ begin
     ExtractFaceBoxs(pFaceRes^, AFaceRegions);
   end;
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.DetectFacesFromBmpFile
- 功能:      从文件Bmp文件中获取人脸位置信息列表，请确保文件为正确的BMP格式
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      AFile: String; //源文件
- var AFaceRegions: TList<AFR_FSDK_FACEINPUT> //输入人脸位置信息列表
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.DetectFacesFromBmpFile(AFile: string; var AFaceRegions:
-  TList<AFR_FSDK_FACEINPUT>): Boolean;
+//从文件Bmp文件中获取人脸位置信息列表，请确保文件为正确的BMP格式
+function TArcFaceSDK.DetectFacesFromBmpFile(
+  AFile: string; //源文件
+  var AFaceRegions: TList<AFR_FSDK_FACEINPUT>//输出人脸位置信息列表
+  ): Boolean;
 var
   BMP: TBitmap;
 begin
@@ -606,17 +570,11 @@ begin
   end;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.TrackFacesFromBmpFile
- 功能:      从文件中获取人脸位置信息列表（追踪模式）
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      AFile: String; //源文件
- var AFaceRegions: TList<AFR_FSDK_FACEINPUT> //输出人脸位置信息
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.TrackFacesFromBmpFile(AFile: string; var AFaceRegions:
-  TList<AFR_FSDK_FACEINPUT>): Boolean;
+//从文件中获取人脸位置信息列表（追踪模式）
+function TArcFaceSDK.TrackFacesFromBmpFile(
+  AFile: string; //源文件
+  var AFaceRegions: TList<AFR_FSDK_FACEINPUT>//输出人脸位置信息
+  ): Boolean;
 var
   BMP: TBitmap;
 begin
@@ -643,16 +601,12 @@ begin
     FOnLog(Msg);
 end;
 
-{-------------------------------------------------------------------------------
-  过程名:    TArcFaceSDK.DRAGfromJPGFile
-  功能:      从JPG文件中获取人脸位置、年龄、性别和特征信息列表
-  作者:      Bird
-  日期:      2018.01.31
-  参数:      AFileName: string; var AFaceInfos: TList<TFaceBaseInfo>; var AFaceModels: TFaceModels
-  返回值:    Boolean
--------------------------------------------------------------------------------}
-function TArcFaceSDK.DRAGfromJPGFile(AFileName: string; var AFaceInfos:
-  TList<TFaceBaseInfo>; var AFaceModels: TFaceModels): Boolean;
+//从JPG文件中获取人脸位置、年龄、性别和特征信息列表
+function TArcFaceSDK.DRAGfromJPGFile(
+  AFileName: string; //JPEG文件名
+  var AFaceInfos: TList<TFaceBaseInfo>; //输出人脸基本信息列表
+  var AFaceModels: TFaceModels//人脸特征集
+  ): Boolean;
 var
   lBitmap: TBitmap;
 begin
@@ -669,18 +623,13 @@ begin
   end;
 end;
 
-{-------------------------------------------------------------------------------
-  过程名:    TArcFaceSDK.DRAGfromBmp
-  功能:      从Bitmap中获取人脸位置、年龄、性别和特征信息列表
-  作者:      Bird
-  日期:      2018.01.31
-  参数:      ABitmap: TBitmap; var AFaceInfos: TList<TFaceBaseInfo>; var AFaceModels: TFaceModels
-  返回值:    Boolean
--------------------------------------------------------------------------------}
-function TArcFaceSDK.DRAGfromBmp(ABitmap: TBitmap; var AFaceInfos:
-  TList<TFaceBaseInfo>; var AFaceModels: TFaceModels): Boolean;
+//Bitmap中获取人脸位置、年龄、性别和特征信息列表
+function TArcFaceSDK.DRAGfromBmp(
+  ABitmap: TBitmap; //源位图
+  var AFaceInfos: TList<TFaceBaseInfo>; //输出人脸基本信息列表
+  var AFaceModels: TFaceModels//人脸特征集
+  ): Boolean;
 var
-  pImgData: PByte;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
   lFaceRes_Age: ASAE_FSDK_AGEFACEINPUT;
@@ -693,7 +642,7 @@ var
   lGenders: TArray<Integer>;
   lFaceInfo: TFaceBaseInfo;
   i, iFaces: Integer;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   ArrFaceOrient: array of AFD_FSDK_OrientCode;
   ArrFaceRect: array of MRECT;
 {$IFDEF DEBUG}
@@ -710,12 +659,10 @@ begin
   if FFaceDetectionEngine = nil then
     Exit;
 
-  pImgData := nil;
-
 {$IFDEF DEBUG}
   T := GetTickCount;
 {$ENDIF}
-  if not ReadBmp(ABitmap, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmp(ABitmap, lImgDataInfo) then
     Exit;
 {$IFDEF DEBUG}
   T := GetTickCount - T;
@@ -725,11 +672,11 @@ begin
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
 
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
   //人脸检测
 {$IFDEF DEBUG}
   T := GetTickCount;
@@ -776,12 +723,10 @@ begin
           T := GetTickCount;
 {$ENDIF}
           if ASAE_FSDK_AgeEstimation_StaticImage(
-            FFaceAgeEngine, //[in] age estimation engine
-            @offInput, //[in] the original image information
-            //[in] the face rectangles information
-            @lFaceRes_Age,
-            //[out] the results of age estimation
-            lAgeRes
+            FFaceAgeEngine, //[in]年龄评估引擎实例句柄
+            @offInput, //[in]图像数据信息
+            @lFaceRes_Age, //[in]人脸框信息
+            lAgeRes//[out]性别评估结果
             ) = MOK then
             //分解人脸年龄
             ExtractFaceAges(lAgeRes, lAges)
@@ -795,7 +740,7 @@ begin
           Result := False;
 
         //===================================================
-        //检测性别
+        //性别评估
         //===================================================
         if (FFaceGenderEngine <> nil) then
         begin
@@ -810,12 +755,10 @@ begin
           T := GetTickCount;
 {$ENDIF}
           if ASGE_FSDK_GenderEstimation_StaticImage(
-            FFaceGenderEngine, //[in] Gender estimation engine
-            @offInput, //[in] the original imGender information
-            //[in] the face rectangles information
-            @lFaceRes_Gender,
-            //[out] the results of Gender estimation
-            lGenderRes
+            FFaceGenderEngine, //[in]性别评估引擎实例句柄
+            @offInput, //[in]图像数据
+            @lFaceRes_Gender, //[in]人脸框信息
+            lGenderRes//[out]性别评估结果
             ) = MOK then
             //分解人脸性别
             ExtractFaceGenders(lGenderRes, lGenders)
@@ -860,22 +803,17 @@ begin
     end;
   end;
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-
-{-------------------------------------------------------------------------------
-  过程名:    TArcFaceSDK.DRAGfromBmpFile
-  功能:      从BMP文件中获取人脸位置、年龄、性别和特征信息列表
-  作者:      Bird
-  日期:      2018.01.31
-  参数:      AFileName: string; var AFaceInfos: TList<TFaceBaseInfo>; var AFaceModels: TFaceModels
-  返回值:    Boolean
--------------------------------------------------------------------------------}
-function TArcFaceSDK.DRAGfromBmpFile(AFileName: string; var AFaceInfos:
-  TList<TFaceBaseInfo>; var AFaceModels: TFaceModels): Boolean;
+//从BMP文件中获取人脸位置、年龄、性别和特征信息列表
+function TArcFaceSDK.DRAGfromBmpFile(
+  AFileName: string; //文件名
+  var AFaceInfos: TList<TFaceBaseInfo>; //输出人脸基本信息列表
+  var AFaceModels: TFaceModels//人脸特征集
+  ): Boolean;
 var
   lBitmap: TBitmap;
 begin
@@ -892,18 +830,16 @@ begin
   end;
 end;
 
-
-{-------------------------------------------------------------------------------
-  过程名:    TArcFaceSDK.DrawFaceRectAgeGender
-  功能:      在Canvas上画人脸框、年龄、性别
-  作者:      Bird
-  日期:      2018.01.31
-  参数:      ACanvas: TCanvas; AFaceIdx: Integer; AFaceInfo: TFaceBaseInfo; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 0
-  返回值:    无
--------------------------------------------------------------------------------}
-class procedure TArcFaceSDK.DrawFaceRectAgeGender(ACanvas: TCanvas; AFaceIdx:
-  Integer; AFaceInfo: TFaceBaseInfo; AColor: TColor = clBlue; AWidth: Integer
-  = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 0);
+//在Canvas上画人脸框、年龄、性别
+class procedure TArcFaceSDK.DrawFaceRectAgeGender(
+  ACanvas: TCanvas; //目标画板
+  AFaceIdx: Integer; //人脸索引
+  AFaceInfo: TFaceBaseInfo; //人脸基本信息
+  AColor: TColor = clBlue; //画笔颜色
+  AWidth: Integer = 2; //框线像素
+  ADrawIndex: Boolean = true; //是否画索引
+  ATextSize: Integer = 0//文字大小
+  );
 var
   sText: string;
   iTextHeight, iTextWidth: Integer;
@@ -967,18 +903,16 @@ begin
 
 end;
 
-
-{-------------------------------------------------------------------------------
-  过程名:    TArcFaceSDK.DrawFaceRect
-  功能:      在Canvas上画人脸框
-  作者:      Bird
-  日期:      2018.01.31
-  参数:      ACanvas: TCanvas; AFaceIdx: Integer; AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; ATextSize: Integer = 0
-  返回值:    无
--------------------------------------------------------------------------------}
-class procedure TArcFaceSDK.DrawFaceRect(ACanvas: TCanvas; AFaceIdx: Integer;
-  AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer =
-  2; ADrawIndex: Boolean = true; ATextSize: Integer = 0);
+//在Canvas上画人脸框
+class procedure TArcFaceSDK.DrawFaceRect(
+  ACanvas: TCanvas; //目标画板
+  AFaceIdx: Integer; //人脸索引
+  AFaceInfo: AFR_FSDK_FACEINPUT; //人脸框信息
+  AColor: TColor = clBlue; //画笔颜色
+  AWidth: Integer = 2; //框线像素
+  ADrawIndex: Boolean = true; //是否画索引
+  ATextSize: Integer = 0//文字大小
+  );
 var
   sText: string;
   iTextHeight, iTextWidth: Integer;
@@ -1032,17 +966,11 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceBoxs
- 功能:      提取API人脸检测结果列表到Delphi泛型列表(跟踪模式)
- 作者:      Bird
- 日期:      2018.01.19
- 参数:      AFaces: AFT_FSDK_FACERES;//人脸位置框原始数据
- var AFaceRegions: TList<AFR_FSDK_FACEINPUT> //分解输出列表
- 返回值:    无
- -------------------------------------------------------------------------------}
-class procedure TArcFaceSDK.ExtractFaceBoxs(AFaces: AFT_FSDK_FACERES; var
-  AFaceRegions: TList<AFR_FSDK_FACEINPUT>);
+//提取API人脸检测结果列表到Delphi泛型列表(跟踪模式)
+class procedure TArcFaceSDK.ExtractFaceBoxs(
+  AFaces: AFT_FSDK_FACERES; //人脸位置框原始数据
+  var AFaceRegions: TList<AFR_FSDK_FACEINPUT>//分解输出列表
+  );
 var
   i, j: Integer;
   lFace: AFR_FSDK_FACEINPUT;
@@ -1061,17 +989,11 @@ begin
   end;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceBoxs
- 功能:      提取API人脸检测结果列表到Delphi泛型列表
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      AFaces: AFD_FSDK_FACERES; //人脸位置框原始数据
- var AFaceRegions: TList<AFR_FSDK_FACEINPUT>//分解输出列表
- 返回值:    无
- -------------------------------------------------------------------------------}
-class procedure TArcFaceSDK.ExtractFaceBoxs(AFaces: AFD_FSDK_FACERES;
-  AFaceRegions: TList<AFR_FSDK_FACEINPUT>);
+//提取API人脸检测结果列表到Delphi泛型列表
+class procedure TArcFaceSDK.ExtractFaceBoxs(
+  AFaces: AFD_FSDK_FACERES; //人脸位置框原始数据
+  AFaceRegions: TList<AFR_FSDK_FACEINPUT>//分解输出列表
+  );
 var
   i, j: Integer;
   lFace: AFR_FSDK_FACEINPUT;
@@ -1087,17 +1009,11 @@ begin
   end;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceAges
- 功能:      提取API人脸年龄检测结果列表到数组
- 作者:      Bird
- 日期:      2017.12.17
- 参数:      AFaceAgeResults: ASAE_FSDK_AGERESULT; //年齡检测结果
- var AFaceAges: TArray<Integer> //输出整形数组
- 返回值:    无
- -------------------------------------------------------------------------------}
-class procedure TArcFaceSDK.ExtractFaceAges(AFaceAgeResults:
-  ASAE_FSDK_AGERESULT; var AFaceAges: TArray<Integer>);
+//提取API人脸年龄检测结果列表到数组
+class procedure TArcFaceSDK.ExtractFaceAges(
+  AFaceAgeResults: ASAE_FSDK_AGERESULT; //年齡检测结果
+  var AFaceAges: TArray<Integer>//输出整形数组
+  );
 var
   i, j: Integer;
 begin
@@ -1107,17 +1023,11 @@ begin
     AFaceAges[i] := Pint(AFaceAgeResults.pAgeResultArray + i * j)^;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceAges
- 功能:      提取API人脸性别检测结果列表到数组
- 作者:      Bird
- 日期:      2017.12.17
- 参数:      AFaceGenderResults: ASGE_FSDK_GENDERRESULT; //性别检测结果
- var AFaceGenders: TArray<Integer> //输出整形数组
- 返回值:    无
- -------------------------------------------------------------------------------}
-class procedure TArcFaceSDK.ExtractFaceGenders(AFaceGenderResults:
-  ASGE_FSDK_GENDERRESULT; var AFaceGenders: TArray<Integer>);
+//提取API人脸性别检测结果列表到数组
+class procedure TArcFaceSDK.ExtractFaceGenders(
+  AFaceGenderResults: ASGE_FSDK_GENDERRESULT; //性别检测结果
+  var AFaceGenders: TArray<Integer>//输出整形数组
+  );
 var
   i, j: Integer;
 begin
@@ -1129,18 +1039,12 @@ begin
   end;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceFeature
- 功能:      根据给定的单个人脸框提取单个人脸特征
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      AFaceInput: ASVLOFFSCREEN; //图片数据
- AFaceRegion: AFR_FSDK_FACEINPUT; //人脸位置信息
- var AFaceModel: AFR_FSDK_FACEMODEL //人脸特征，特征数据内存需手动使用freemem释放
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.ExtractFaceFeature(AFaceInput: ASVLOFFSCREEN; AFaceRegion:
-  AFR_FSDK_FACEINPUT; var AFaceModel: AFR_FSDK_FACEMODEL): Boolean;
+//根据给定的单个人脸框提取单个人脸特征
+function TArcFaceSDK.ExtractFaceFeature(
+  AFaceInput: ASVLOFFSCREEN; //图片数据
+  AFaceRegion: AFR_FSDK_FACEINPUT; //人脸位置信息
+  var AFaceModel: AFR_FSDK_FACEMODEL//人脸特征，特征数据内存需手动使用freemem释放
+  ): Boolean;
 var
   tmpFaceModels: AFR_FSDK_FACEMODEL;
 begin
@@ -1173,19 +1077,12 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceFeatures
- 功能:      根据给定的多个人脸框提取多个人脸特征
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      AFaceInput: ASVLOFFSCREEN; //图片数据
- AFaceRegions: TList<AFR_FSDK_FACEINPUT>; //人脸位置信息信息列表
- var AFaceModels: TFaceModels //输出人脸特征列表
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.ExtractFaceFeatures(AFaceInput: ASVLOFFSCREEN;
-  AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels):
-  Boolean;
+//根据给定的多个人脸框提取多个人脸特征
+function TArcFaceSDK.ExtractFaceFeatures(
+  AFaceInput: ASVLOFFSCREEN; //图片数据
+  AFaceRegions: TList<AFR_FSDK_FACEINPUT>; //人脸位置信息信息列表
+  var AFaceModels: TFaceModels//输出人脸特征列表
+  ): Boolean;
 var
   lFaceModel: AFR_FSDK_FACEMODEL;
   i: Integer;
@@ -1204,21 +1101,14 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceFeatureFromBmp
- 功能:      从Bitmap中提取单个人脸特征
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      ABitmap: TBitmap; //Bitmap数据
- AFaceRegion: AFR_FSDK_FACEINPUT; //人脸位置信息
- var AFaceModel: AFR_FSDK_FACEMODEL //人脸特征，特征数据内存需手动使用freemem释放
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.ExtractFaceFeatureFromBmp(ABitmap: TBitmap; AFaceRegion:
-  AFR_FSDK_FACEINPUT; var AFaceModel: AFR_FSDK_FACEMODEL): Boolean;
+//从Bitmap中提取单个人脸特征
+function TArcFaceSDK.ExtractFaceFeatureFromBmp(
+  ABitmap: TBitmap; //Bitmap数据
+  AFaceRegion: AFR_FSDK_FACEINPUT; //人脸位置信息
+  var AFaceModel: AFR_FSDK_FACEMODEL//人脸特征，特征数据内存需手动使用freemem释放
+  ): Boolean;
 var
-  pImgData: PByte;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
 begin
@@ -1227,43 +1117,34 @@ begin
   if FFaceRecognitionEngine = nil then
     Exit;
 
-  pImgData := nil;
-
-  if not ReadBmp(ABitmap, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmp(ABitmap, lImgDataInfo) then
     Exit;
 
   offInput.u32PixelArrayFormat := ASVL_PAF_RGB24_B8G8R8;
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
 
   //人脸特征提取
   Result := ExtractFaceFeature(offInput, AFaceRegion, AFaceModel);
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceFeaturesFromBmp
- 功能:      从Bitmap中提取多个人脸特征
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      ABitmap: TBitmap; //图片数据
- AFaceRegions: TList<AFR_FSDK_FACEINPUT>; //人脸位置信息信息列表
- var AFaceModels: TFaceModels //输出人脸特征列表
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.ExtractFaceFeaturesFromBmp(ABitmap: TBitmap; AFaceRegions:
-  TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels): Boolean;
+//从Bitmap中提取多个人脸特征
+function TArcFaceSDK.ExtractFaceFeaturesFromBmp(
+  ABitmap: TBitmap; //图片数据
+  AFaceRegions: TList<AFR_FSDK_FACEINPUT>; //人脸位置信息信息列表
+  var AFaceModels: TFaceModels//输出人脸特征列表
+  ): Boolean;
 var
-  pImgData: PByte;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
 begin
@@ -1272,44 +1153,34 @@ begin
   if FFaceRecognitionEngine = nil then
     Exit;
 
-  pImgData := nil;
-
-  if not ReadBmp(ABitmap, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmp(ABitmap, lImgDataInfo) then
     Exit;
 
   offInput.u32PixelArrayFormat := ASVL_PAF_RGB24_B8G8R8;
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
 
   //人脸特征提取
   Result := ExtractFaceFeatures(offInput, AFaceRegions, AFaceModels);
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceFeatureFromBmpFile
- 功能:      从BMP文件中提取单个人脸特征
- 作者:      Bird
- 日期:      2017.09.24
- 参数:
- AFile: string; //BMP图片文件，请确保文件格式为BMP
- AFaceRegion: AFR_FSDK_FACEINPUT; //人脸位置信息
- var AFaceModel: AFR_FSDK_FACEMODEL //人脸特征，特征数据内存需手动使用freemem释放
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.ExtractFaceFeatureFromBmpFile(AFile: string; AFaceRegion:
-  AFR_FSDK_FACEINPUT; var AFaceModel: AFR_FSDK_FACEMODEL): Boolean;
+//从BMP文件中提取单个人脸特征
+function TArcFaceSDK.ExtractFaceFeatureFromBmpFile(
+  AFile: string; //BMP图片文件，请确保文件格式为BMP
+  AFaceRegion: AFR_FSDK_FACEINPUT; //人脸位置信息
+  var AFaceModel: AFR_FSDK_FACEMODEL//人脸特征，特征数据内存需手动使用freemem释放
+  ): Boolean;
 var
-  pImgData: PByte;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
 begin
@@ -1318,45 +1189,34 @@ begin
   if FFaceRecognitionEngine = nil then
     Exit;
 
-  pImgData := nil;
-
-  if not ReadBmpFile(AFile, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmpFile(AFile, lImgDataInfo) then
     Exit;
 
   offInput.u32PixelArrayFormat := ASVL_PAF_RGB24_B8G8R8;
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
 
   //人脸特征提取
   Result := ExtractFaceFeature(offInput, AFaceRegion, AFaceModel);
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ExtractFaceFeaturesFromBmpFile
- 功能:      从BMP文件中提取多个人脸特征
- 作者:      Bird
- 日期:      2017.09.24
- 参数:
- AFile: string; //BMP图片文件
- AFaceRegions: TList<AFR_FSDK_FACEINPUT>; //人脸位置信息信息列表
- var AFaceModels: TFaceModels //人脸特征列表
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.ExtractFaceFeaturesFromBmpFile(AFile: string;
-  AFaceRegions: TList<AFR_FSDK_FACEINPUT>; var AFaceModels: TFaceModels):
-  Boolean;
+//从BMP文件中提取多个人脸特征
+function TArcFaceSDK.ExtractFaceFeaturesFromBmpFile(
+  AFile: string; //BMP图片文件
+  AFaceRegions: TList<AFR_FSDK_FACEINPUT>; //输出人脸位置信息信息列表
+  var AFaceModels: TFaceModels//输出人脸特征列表
+  ): Boolean;
 var
-  pImgData: PByte;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
 begin
@@ -1365,36 +1225,27 @@ begin
   if FFaceRecognitionEngine = nil then
     Exit;
 
-  pImgData := nil;
-
-  if not ReadBmpFile(AFile, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmpFile(AFile, lImgDataInfo) then
     Exit;
 
   offInput.u32PixelArrayFormat := ASVL_PAF_RGB24_B8G8R8;
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
 
   //人脸特征提取
   Result := ExtractFaceFeatures(offInput, AFaceRegions, AFaceModels);
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.InitialFaceDetectionEngine
- 功能:      初始化人脸检测引擎
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      Deinitial: Boolean
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//初始化人脸检测引擎
 function TArcFaceSDK.InitialFaceDetectionEngine(Deinitial: Boolean): Integer;
 begin
 
@@ -1438,14 +1289,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.InitialFaceTrackingEngine
- 功能:      初始化人脸追踪引擎
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      Deinitial: Boolean
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//初始化人脸追踪引擎
 function TArcFaceSDK.InitialFaceTrackingEngine(Deinitial: Boolean): Integer;
 begin
 
@@ -1487,14 +1331,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.InitialFaceRecognitionEngine
- 功能:      初始化人脸特征检测引擎
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      Deinitial: Boolean
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//初始化人脸特征提取引擎
 function TArcFaceSDK.InitialFaceRecognitionEngine(Deinitial: Boolean): Integer;
 begin
 
@@ -1530,14 +1367,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.InitialFaceAgeEngine
- 功能:      初始化人脸年龄检测引擎
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      Deinitial: Boolean
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//初始化人脸年龄检测引擎
 function TArcFaceSDK.InitialFaceAgeEngine(Deinitial: Boolean): Integer;
 begin
 
@@ -1573,14 +1403,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.InitialFaceGenderEngine
- 功能:      初始化人脸性别检测引擎
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      Deinitial: Boolean
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//初始化人脸性别检测引擎
 function TArcFaceSDK.InitialFaceGenderEngine(Deinitial: Boolean): Integer;
 begin
 
@@ -1616,14 +1439,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.MatchFace
- 功能:      比对两个人脸特征
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      AFaceModel1, AFaceModel2: AFR_FSDK_FACEMODEL
- 返回值:    Single
- -------------------------------------------------------------------------------}
+//比对两个人脸特征
 function TArcFaceSDK.MatchFace(AFaceModel1, AFaceModel2: AFR_FSDK_FACEMODEL):
   Single;
 var
@@ -1640,14 +1456,7 @@ begin
     Result := fSimilScore;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.MatchFaceWithBitmaps
- 功能:      比对两张图像（只取两张图像的第一个人脸进行比对）
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      ABitmap1, ABitmap2: TBitmap
- 返回值:    Single
- -------------------------------------------------------------------------------}
+//比对两张图像（只取两张图像的第一个人脸进行比对）
 function TArcFaceSDK.MatchFaceWithBitmaps(ABitmap1, ABitmap2: TBitmap): Single;
 var
   AFaceRegions1, AFaceRegions2: TList<AFR_FSDK_FACEINPUT>;
@@ -1705,14 +1514,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.UnInitialFaceDetectionEngine
- 功能:      释放人脸检测引擎
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      无
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//释放人脸检测引擎
 function TArcFaceSDK.UnInitialFaceDetectionEngine: Integer;
 begin
 
@@ -1733,16 +1535,9 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ReadBmp
- 功能:      读取Bitmap到内存
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      ABitmap: TBitmap; var AImgData: PByte; var AWidth, AHeight, ALineBytes: Integer
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-class function TArcFaceSDK.ReadBmp(ABitmap: TBitmap; var AImgData: PByte; var
-  AWidth, AHeight, ALineBytes: Integer): Boolean;
+//读取Bitmap到到图像数据结构
+class function TArcFaceSDK.ReadBmp(ABitmap: TBitmap; var AImgDataInfo:
+  TImgDataInfo): Boolean;
 var
   iLineByte: Integer;
   iBitCount: Integer;
@@ -1772,39 +1567,36 @@ var
 
 begin
   Result := False;
-  iBitCount := GetBitCount;
-  if iBitCount = 0 then
+  AImgDataInfo.Init;
+  AImgDataInfo.BitCount := GetBitCount;
+  if AImgDataInfo.BitCount = 0 then
     Exit;
 
-  AWidth := ABitmap.Width;
-  AHeight := ABitmap.Height;
+  AImgDataInfo.Width := ABitmap.Width;
+  AImgDataInfo.Height := ABitmap.Height;
 
   //获取位图行长度
   iLineByte := Trunc((ABitmap.Width * iBitCount / 8 + 3) / 4) * 4;
-  ALineBytes := iLineByte;
+  AImgDataInfo.LineBytes := iLineByte;
 
-  GetMem(AImgData, iLineByte * ABitmap.Height);
+  GetMem(AImgDataInfo.pImgData, iLineByte * ABitmap.Height);
 
   //读入内存，注意为倒序，从最后一行开始读
   for i := ABitmap.Height - 1 downto 0 do
   begin
-    CopyMemory(Pointer(AImgData + i * iLineByte), ABitmap.ScanLine[i],
+    CopyMemory(Pointer(AImgDataInfo.pImgData + i * iLineByte),
+      ABitmap.ScanLine[i],
       iLineByte);
   end;
 
   Result := true;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ReadBmpFile
- 功能:      读取磁盘上的BMP文件到内存
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      AFilename: string; var AImgData: PByte; var AWidth, AHeight, ALineBytes: Integer
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-class function TArcFaceSDK.ReadBmpFile(AFileName: string; var AImgData: PByte;
-  var AWidth, AHeight, ALineBytes: Integer): Boolean;
+//读取磁盘上的BMP文件到图像数据结构
+class function TArcFaceSDK.ReadBmpFile(
+  AFileName: string;
+  var AImgDataInfo: TImgDataInfo
+  ): Boolean;
 var
   lBitmap: TBitmap;
 begin
@@ -1816,21 +1608,14 @@ begin
   lBitmap := TBitmap.Create;
   try
     lBitmap.LoadFromFile(AFileName);
-    Result := ReadBmp(lBitmap, AImgData, AWidth, AHeight, ALineBytes);
+    Result := ReadBmp(lBitmap, AImgDataInfo);
   finally
     lBitmap.Free;
   end;
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ReadBmpFile
- 功能:      读取磁盘上的BMP文件到内存
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      AFilename: string; var ABitmap: PByte; var AWidth, AHeight, ALineBytes: Integer
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
+//读取磁盘上的BMP文件到内存并转换为TBitmap
 class function TArcFaceSDK.ReadBmpFile(AFileName: string; ABitmap: TBitmap):
   Boolean;
 begin
@@ -1844,16 +1629,9 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ReadJpegFile
- 功能:      读取磁盘上的JPG文件到内存并转换为TBitmap
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      AFilename: string; var AImgData: PByte; var AWidth, AHeight, ABitCount: Integer
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-class function TArcFaceSDK.ReadJpegFile(AFileName: string; var AImgData: PByte;
-  var AWidth, AHeight, ABitCount: Integer): Boolean;
+//读取磁盘上的JPG文件到内存并转换为TBitmap
+class function TArcFaceSDK.ReadJpegFile(AFileName: string; var AImgDataInfo:
+  TImgDataInfo): Boolean;
 var
   lBitmap: TBitmap;
   lJpeg: TuJpegImage;
@@ -1867,7 +1645,7 @@ begin
   try
     lJpeg.LoadFromFile(AFileName);
     lBitmap := lJpeg.BitmapData;
-    Result := ReadBmp(lBitmap, AImgData, AWidth, AHeight, ABitCount);
+    Result := ReadBmp(lBitmap, AImgDataInfo);
   finally
     lBitmap := nil;
     lJpeg.Free;
@@ -1875,16 +1653,9 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ReadBmpStream
- 功能:      读取BMP流
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      AStream: TMemoryStream; var AImgData: PByte; var AWidth, AHeight, ALineBytes: Integer
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-class function TArcFaceSDK.ReadBmpStream(AStream: TMemoryStream; var AImgData:
-  PByte; var AWidth, AHeight, ALineBytes: Integer): Boolean;
+//读取BMP流到图像数据结构
+class function TArcFaceSDK.ReadBmpStream(AStream: TMemoryStream; var
+  AImgDataInfo: TImgDataInfo): Boolean;
 var
   lBitmap: TBitmap;
 begin
@@ -1896,21 +1667,14 @@ begin
   lBitmap := TBitmap.Create;
   try
     lBitmap.LoadFromStream(AStream);
-    Result := ReadBmp(lBitmap, AImgData, AWidth, AHeight, ALineBytes);
+    Result := ReadBmp(lBitmap, AImgDataInfo);
   finally
     lBitmap.Free;
   end;
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.ReadJpegFile
- 功能:      读取磁盘上的JPG文件到内存并转换为TBitmap
- 作者:      Bird
- 日期:      2017.11.19
- 参数:      AFilename: string; var ABitmap: PByte; var AWidth, AHeight, ABitCount: Integer
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
+//读取磁盘上的JPG文件到内存并转换为TBitmap
 class function TArcFaceSDK.ReadJpegFile(AFileName: string; ABitmap: TBitmap):
   Boolean;
 var
@@ -1941,18 +1705,12 @@ begin
   FScale := Value;
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.TrackFacesAndAgeGenderFromIEBitmap
- 功能:      从IEBitmap中获取人脸位置、性别和年龄信息列表（追踪模式）
- 作者:      DelphiDX10
- 日期:      2018.01.31
- 参数:      ABitmap: TIEBitmap; var AFaceInfos: TList<TFaceBaseInfo>; AUseCache: Boolean
- 返回值:    Boolean
- -------------------------------------------------------------------------------}
-function TArcFaceSDK.TrackFacesAndAgeGenderFromBmp(ABitmap: TBitmap; var
-  AFaceInfos: TList<TFaceBaseInfo>): Boolean;
+//从Bitmap中获取人脸位置、性别和年龄信息列表（追踪模式）
+function TArcFaceSDK.TrackFacesAndAgeGenderFromBmp(
+  ABitmap: TBitmap; //源位图
+  var AFaceInfos: TList<TFaceBaseInfo>//输出人脸基本信息
+  ): Boolean;
 var
-  pImgData: PByte;
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFT_FSDK_FACERES;
   lFaceRes_Age: ASAE_FSDK_AGEFACEINPUT;
@@ -1964,7 +1722,7 @@ var
   lGenders: TArray<Integer>;
   lFaceInfo: TFaceBaseInfo;
   i, iFaces: Integer;
-  iWidth, iHeight, iLineBytes: Integer;
+  lImgDataInfo: TImgDataInfo;
   ArrFaceOrient: array of AFT_FSDK_OrientCode;
   ArrFaceRect: array of MRECT;
   R: MRESULT;
@@ -1977,20 +1735,18 @@ begin
   if FFaceDetectionEngine = nil then
     Exit;
 
-  pImgData := nil;
-
-  if not ReadBmp(ABitmap, pImgData, iWidth, iHeight, iLineBytes) then
+  if not ReadBmp(ABitmap, lImgDataInfo) then
     Exit;
 
   offInput.u32PixelArrayFormat := ASVL_PAF_RGB24_B8G8R8;
   FillChar(offInput.pi32Pitch, SizeOf(offInput.pi32Pitch), 0);
   FillChar(offInput.ppu8Plane, SizeOf(offInput.ppu8Plane), 0);
 
-  offInput.i32Width := iWidth;
-  offInput.i32Height := iHeight;
+  offInput.i32Width := lImgDataInfo.Width;
+  offInput.i32Height := lImgDataInfo.Height;
 
-  offInput.ppu8Plane[0] := IntPtr(pImgData);
-  offInput.pi32Pitch[0] := iLineBytes;
+  offInput.ppu8Plane[0] := IntPtr(lImgDataInfo.pImgData);
+  offInput.pi32Pitch[0] := lImgDataInfo.LineBytes;
 
   lFaceRegions := TList<AFR_FSDK_FACEINPUT>.Create;
   try
@@ -2075,19 +1831,12 @@ begin
     FreeAndNil(lFaceRegions);
   end;
 
-  if pImgData <> nil then
-    FreeMem(pImgData);
+  if lImgDataInfo.pImgData <> nil then
+    FreeMem(lImgDataInfo.pImgData);
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.UnInitialFaceTrackingEngine
- 功能:      释放人脸跟踪引擎
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      无
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//释放人脸跟踪引擎
 function TArcFaceSDK.UnInitialFaceTrackingEngine: Integer;
 begin
   if FFaceTrackingEngine <> nil then
@@ -2107,14 +1856,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.UnInitialFaceRecognitionEngine
- 功能:      释放人脸识别引擎
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      无
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//释放人脸检测识别引擎
 function TArcFaceSDK.UnInitialFaceRecognitionEngine: Integer;
 begin
   if FFaceRecognitionEngine <> nil then
@@ -2134,14 +1876,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.UnInitialFaceAgeEngine
- 功能:      释放人脸识别引擎
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      无
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//释放人脸识别引擎
 function TArcFaceSDK.UnInitialFaceAgeEngine: Integer;
 begin
   if FFaceAgeEngine <> nil then
@@ -2161,14 +1896,7 @@ begin
 
 end;
 
-{-------------------------------------------------------------------------------
- 过程名:    TArcFaceSDK.UnInitialFaceGenderEngine
- 功能:      释放人脸识别引擎
- 作者:      Bird
- 日期:      2017.09.24
- 参数:      无
- 返回值:    Integer
- -------------------------------------------------------------------------------}
+//释放性别识别引擎
 function TArcFaceSDK.UnInitialFaceGenderEngine: Integer;
 begin
   if FFaceGenderEngine <> nil then
@@ -2339,6 +2067,15 @@ begin
     bottom := 0;
   end;
 
+end;
+
+procedure TImgDataInfo.Init;
+begin
+  pImgData := nil;
+  Width := 0;
+  Height := 0;
+  LineBytes := 0;
+  BitCount := 0;
 end;
 
 end.
