@@ -1,9 +1,9 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{7B4F95F9-6D25-42F3-B0EA-759F91EC2DAF}</ProjectGuid>
+        <ProjectGuid>{C530598F-2D00-43F4-A688-2004C1899374}</ProjectGuid>
         <ProjectVersion>18.4</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
-        <MainSource>ArcIETest.dpr</MainSource>
+        <MainSource>ArcBmpRZTest.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -46,7 +46,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <SanitizedProjectName>ArcIETest</SanitizedProjectName>
+        <SanitizedProjectName>ArcBmpRZTest</SanitizedProjectName>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
@@ -126,7 +126,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">ArcIETest.dpr</Source>
+                    <Source Name="MainSource">ArcBmpRZTest.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\19.0\Bpl\LockBox3FMXDD240.bpl">TurboPack LockBox 3 FMX designtime package</Excluded_Packages>
@@ -136,9 +136,9 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="..\bin\ArcIETest.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\bin\ArcBmpRZTest.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>ArcIETest.exe</RemoteName>
+                        <RemoteName>ArcBmpRZTest.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

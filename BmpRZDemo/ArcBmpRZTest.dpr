@@ -1,4 +1,4 @@
-program ArcBmpTest;
+program ArcBmpRZTest;
 
 uses
   Vcl.Forms,

@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, amcomdef, asvloffscreendef;
 
 const
-  ArcDetectionDll = 'libarcsoft_fsdk_face_detection.dll';
+  ArcDetectionDll = 'libarcsoft_fsdk_face_n_detection.dll';
 
 type
   AFD_FSDK_OrientPriority = MInt32;

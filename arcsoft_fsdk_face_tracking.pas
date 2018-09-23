@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, amcomdef, asvloffscreendef;
 
 const
-  ArcTrackingDll = 'libarcsoft_fsdk_face_tracking.dll';
+  ArcTrackingDll = 'libarcsoft_fsdk_face_n_tracking.dll';
 
 type
   AFT_FSDK_OrientPriority = MInt32;

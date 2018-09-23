@@ -1,0 +1,1 @@
+{$DEFINE ARC_RZ_SDK}
