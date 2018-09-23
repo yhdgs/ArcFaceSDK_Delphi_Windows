@@ -1,5 +1,5 @@
 ﻿  // 人证APPID
-  FAPPID_FIC := '你申请的APPID';
+  FAPPID_FIC := 你申请的APPID;
   // 人证KEY
   FFaceRZKey_FIC := '你申请的KEY';
 
