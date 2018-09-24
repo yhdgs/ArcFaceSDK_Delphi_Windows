@@ -18,13 +18,17 @@
  *********************************************************************************)
 
 unit arcsoft_fsdk_face_recognition;
-
+{$INCLUDE ArcFace.inc}
 interface
 uses
   Windows, Messages, SysUtils, Classes, amcomdef, asvloffscreendef;
 
 const
+{$IFDEF RZSDK_AS_NORMAL}
+  ArcRecognitionDll = 'libarcsoft_fsdk_face_recognition.dll';
+{$ELSE}
   ArcRecognitionDll = 'libarcsoft_fsdk_face_n_recognition.dll';
+{$ENDIF}
 
 type
   AFR_FSDK_OrientCode = MInt32;

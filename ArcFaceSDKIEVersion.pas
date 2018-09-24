@@ -88,10 +88,14 @@ type
     class procedure DrawFaceRectAgeGenderEX(AView: TImageEnView;
       AFaceIdx: Integer;
       AFaceInfo: TFaceBaseInfo; AColor: TColor = clBlue; AWidth: Integer = 2;
-      ADrawIndex: Boolean = true; ATextSize: Integer = 0);
+      ADrawIndex: Boolean = true; AZoomRotation: Double = 1; ATextSize: Integer =
+      12; AAlphaBlend: Boolean = false; ASourceConstantAlpha: Integer = 180;
+      ABlendColor: TColor = -1);
     class procedure DrawFaceRectEX(AView: TImageEnView; AFaceIdx: Integer;
-      AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; AWidth: Integer =
-      2; ADrawIndex: Boolean = true; ATextSize: Integer = 0);
+      AFaceRect: MRECT; AColor: TColor = clBlue; AWidth: Integer = 2; ADrawIndex:
+      Boolean = true; AZoomRotation: Double = 1; ATextSize: Integer = 12;
+      AAlphaBlend: Boolean = false; ASourceConstantAlpha: Integer = 180;
+      ABlendColor: TColor = -1);
     function ExtractFaceFeatureFromIEBitmap(AIEBitmap: TIEBitmap; AFaceRegion:
       AFR_FSDK_FACEINPUT; var AFaceModel: AFR_FSDK_FACEMODEL; AOutIEBitmp:
       TIEBitmap; AResampleWidth, AResampleHeight: Integer; AResampleFilter:
@@ -231,7 +235,7 @@ var
   fHvsW: Double;
   iWidth, iHeight: Integer;
 begin
-  Result := False;
+  Result := false;
   if ASouceIEBitmap = nil then
     Exit;
 
@@ -365,7 +369,7 @@ var
   T: Cardinal;
 {$ENDIF}
 begin
-  Result := False;
+  Result := false;
 
   if FFaceDetectionEngine = nil then
     Exit;
@@ -579,7 +583,7 @@ var
   lIEBitmap: TIEBitmap;
   io: TImageEnIO;
 begin
-  Result := False;
+  Result := false;
   if not FileExists(AFileName) then
     Exit;
 
@@ -645,7 +649,7 @@ var
   T: Cardinal;
 {$ENDIF}
 begin
-  Result := False;
+  Result := false;
 
   if AFaceInfos = nil then
     AFaceInfos := TList<TFaceBaseInfo>.Create;
@@ -736,13 +740,13 @@ begin
             // 分解人脸年龄
             ExtractFaceAges(lAgeRes, lAges)
           else
-            Result := False;
+            Result := false;
 {$IFDEF DEBUG}
           DoLog('检测年龄耗时：' + IntToStr(GetTickCount - T));
 {$ENDIF}
         end
         else
-          Result := False;
+          Result := false;
 
         // ===================================================
         // 检测性别
@@ -770,13 +774,13 @@ begin
             // 分解人脸性别
             ExtractFaceGenders(lGenderRes, lGenders)
           else
-            Result := False;
+            Result := false;
 {$IFDEF DEBUG}
           DoLog('检测性别耗时：' + IntToStr(GetTickCount - T));
 {$ENDIF}
         end
         else
-          Result := False;
+          Result := false;
 
         for i := 0 to iFaces - 1 do
         begin
@@ -799,7 +803,7 @@ begin
         T := GetTickCount;
 {$ENDIF}
         if not ExtractFaceFeatures(offInput, lFaceRegions, AFaceModels) then
-          Result := False;
+          Result := false;
 {$IFDEF DEBUG}
         DoLog('提取特征耗时：' + IntToStr(GetTickCount - T));
 {$ENDIF}
@@ -876,7 +880,7 @@ var
   lIEBitmap: TIEBitmap;
   io: TImageEnIO;
 begin
-  Result := False;
+  Result := false;
   if not FileExists(AFileName) then
     Exit;
 
@@ -904,7 +908,7 @@ var
   pFaceRes: LPAFD_FSDK_FACERES;
   lImgData: TImgdataInfo;
 begin
-  Result := False;
+  Result := false;
 
   if FFaceDetectionEngine = nil then
     Exit;
@@ -977,7 +981,7 @@ var
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
 begin
-  Result := False;
+  Result := false;
 
   if FFaceDetectionEngine = nil then
     Exit;
@@ -1078,7 +1082,7 @@ var
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFT_FSDK_FACERES;
 begin
-  Result := False;
+  Result := false;
 
   if FFaceDetectionEngine = nil then
     Exit;
@@ -1134,18 +1138,15 @@ end;
   ATextSize: Integer = 0 // 字符大小
   返回值:    无
   ------------------------------------------------------------------------------- }
-class procedure TArcFaceSDKIEVersion.DrawFaceRectAgeGenderEX(
-  AView: TImageEnView; // 图像预览组件
-  AFaceIdx: Integer; // 人脸索引
-  AFaceInfo: TFaceBaseInfo; // 人脸基本信息
-  AColor: TColor = clBlue; // 画笔颜色
-  AWidth: Integer = 2; // 框线宽度
-  ADrawIndex: Boolean = true; // 是否画索引
-  ATextSize: Integer = 0 // 字符大小
-  );
+class procedure TArcFaceSDKIEVersion.DrawFaceRectAgeGenderEX(AView:
+  TImageEnView; AFaceIdx: Integer; AFaceInfo: TFaceBaseInfo; AColor: TColor =
+  clBlue; AWidth: Integer = 2; ADrawIndex: Boolean = true; AZoomRotation:
+  Double = 1; ATextSize: Integer = 12; AAlphaBlend: Boolean = false;
+  ASourceConstantAlpha: Integer = 180; ABlendColor: TColor = -1);
 begin
   DrawFaceRectAgeGender(AView.IEBitmap.Canvas, AFaceIdx, AFaceInfo, AColor,
-    AWidth, ADrawIndex, ATextSize);
+    AWidth, ADrawIndex, AZoomRotation, ATextSize, AAlphaBlend,
+    ASourceConstantAlpha, ABlendColor);
   AView.Update;
 end;
 
@@ -1157,25 +1158,22 @@ end;
   参数:
   AView: TImageEnView; // 图像预览组件
   AFaceIdx: Integer; // 人脸索引
-  AFaceInfo: AFR_FSDK_FACEINPUT; // 人脸框信息
+  AFaceRect: AFR_FSDK_FACEINPUT; // 人脸框信息
   AColor: TColor = clBlue; // 画笔颜色
   AWidth: Integer = 2; // 框线宽度
   ADrawIndex: Boolean = true; // 是否画索引
   ATextSize: Integer = 0 // 文字大小
   返回值:    无
   ------------------------------------------------------------------------------- }
-class procedure TArcFaceSDKIEVersion.DrawFaceRectEX(
-  AView: TImageEnView; // 图像预览组件
-  AFaceIdx: Integer; // 人脸索引
-  AFaceInfo: AFR_FSDK_FACEINPUT; // 人脸框信息
-  AColor: TColor = clBlue; // 画笔颜色
-  AWidth: Integer = 2; // 框线宽度
-  ADrawIndex: Boolean = true; // 是否画索引
-  ATextSize: Integer = 0 // 文字大小
-  );
+class procedure TArcFaceSDKIEVersion.DrawFaceRectEX(AView: TImageEnView;
+  AFaceIdx: Integer; AFaceRect: MRECT; AColor: TColor = clBlue; AWidth:
+  Integer = 2; ADrawIndex: Boolean = true; AZoomRotation: Double = 1;
+  ATextSize: Integer = 12; AAlphaBlend: Boolean = false;
+  ASourceConstantAlpha: Integer = 180; ABlendColor: TColor = -1);
 begin
-  DrawFaceRect(AView.IEBitmap.Canvas, AFaceIdx, AFaceInfo, AColor, AWidth,
-    ADrawIndex, ATextSize);
+  DrawFaceRect(AView.IEBitmap.Canvas, AFaceIdx, AFaceRect, AColor, AWidth,
+    ADrawIndex, AZoomRotation, ATextSize, AAlphaBlend, ASourceConstantAlpha,
+    ABlendColor);
   AView.Update;
 end;
 
@@ -1210,7 +1208,7 @@ var
   offInput: ASVLOFFSCREEN;
   pFaceRes: LPAFD_FSDK_FACERES;
 begin
-  Result := False;
+  Result := false;
 
   if FFaceRecognitionEngine = nil then
     Exit;
@@ -1377,7 +1375,7 @@ var
   lBitMap: TIEBitmap;
   io: TImageEnIO;
 begin
-  Result := False;
+  Result := false;
   if not FileExists(AFileName) then
     Exit;
   lBitMap := TIEBitmap.Create;
@@ -1428,7 +1426,7 @@ var
   LastLP: Pointer;
   iNewWidth, iNewHeight: Integer;
 begin
-  Result := False;
+  Result := false;
   if ABitmap = nil then
     Exit;
 
@@ -1506,7 +1504,7 @@ begin
   else
     lBitMap := ABitmap;
 
-  Result := False;
+  Result := false;
   iBitCount := lBitMap.BitCount;
   if iBitCount = 0 then
     Exit;
@@ -1591,7 +1589,7 @@ var
   ArrFaceRect: array of MRECT;
   R: MRESULT;
 begin
-  Result := False;
+  Result := false;
 
   if AFaceInfos = nil then
     AFaceInfos := TList<TFaceBaseInfo>.Create;
@@ -1755,7 +1753,7 @@ var
   ArrFaceOrient: array of AFD_FSDK_OrientCode;
   ArrFaceRect: array of MRECT;
 begin
-  Result := False;
+  Result := false;
 
   if AFaceInfos = nil then
     AFaceInfos := TList<TFaceBaseInfo>.Create;
@@ -1957,7 +1955,7 @@ var
   lIEBitmap: TIEBitmap;
   io: TImageEnIO;
 begin
-  Result := False;
+  Result := false;
   if not FileExists(AFileName) then
     Exit;
 
@@ -2023,7 +2021,7 @@ var
   T: Cardinal;
 {$ENDIF}
 begin
-  Result := False;
+  Result := false;
 
   if FFaceRzFicEngine = nil then
     Exit;
@@ -2129,7 +2127,7 @@ var
   T: Cardinal;
 {$ENDIF}
 begin
-  Result := False;
+  Result := false;
 
   if FFaceRzFicEngine = nil then
     Exit;
@@ -2225,11 +2223,11 @@ function TArcFaceSDKIEVersion.RzFicCompareFromIEBitmap(AZjz, ARyZP: TIEBitmap;
   isVideo: Boolean; var ASimilarScore: Single; var ACompareResult: Integer;
   var AFaceRes: AFIC_FSDK_FACERES; AThreshold: Single = 0.82): Boolean;
 begin
-  Result := False;
+  Result := false;
   if RzFicIdCardDataFeatureExtractionFromIEBitmap(AZjz, nil, 0, 0,
     TResampleFilter.rfNone, 0) then
     if RzFicFaceDataFeatureExtractionFromIEBitmap(ARyZP, isVideo, AFaceRes,
-      nil, 0, 0, TResampleFilter.rfNone, 0, False) then
+      nil, 0, 0, TResampleFilter.rfNone, 0, false) then
       Result := RzFicFaceIdCardCompare(ASimilarScore, ACompareResult,
         AThreshold);
 end;
@@ -2271,11 +2269,11 @@ function TArcFaceSDKIEVersion.RzFicCompareFromFile(AZjz, ARyZP: string;
   isVideo: Boolean; var ASimilarScore: Single; var ACompareResult: Integer;
   var AFaceRes: AFIC_FSDK_FACERES; AThreshold: Single = 0.82): Boolean;
 begin
-  Result := False;
+  Result := false;
   if RzFicIdCardDataFeatureExtractionFromFile(AZjz, nil, 0, 0,
     TResampleFilter.rfNone, 0) then
     if RzFicFaceDataFeatureExtractionFromFile(ARyZP, isVideo, AFaceRes, nil,
-      0, 0, TResampleFilter.rfNone, 0, False) then
+      0, 0, TResampleFilter.rfNone, 0, false) then
       Result := RzFicFaceIdCardCompare(ASimilarScore, ACompareResult,
         AThreshold);
 end;
@@ -2302,7 +2300,7 @@ var
   T: Cardinal;
 {$ENDIF}
 begin
-  Result := False;
+  Result := false;
   if FFaceRzFicEngine = nil then
     Exit;
 
@@ -2363,7 +2361,7 @@ var
   T: Cardinal;
 {$ENDIF}
 begin
-  Result := False;
+  Result := false;
   if FFaceRzFicEngine = nil then
     Exit;
 

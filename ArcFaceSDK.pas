@@ -15,7 +15,7 @@ uses Windows, Messages, SysUtils, System.Classes, math,
   arcsoft_fsdk_face_tracking, asvloffscreendef, merrorDef,
   arcsoft_fsdk_age_estimation, arcsoft_fsdk_gender_estimation,
   Vcl.Graphics, Vcl.Imaging.jpeg, System.Generics.Collections,
-{$IFDEF ARC_RZ_SDK}arcsoft_fsdk_fic, {$ENDIF} iexBitmaps;
+{$IFDEF ARC_RZ_SDK}arcsoft_fsdk_fic {$ENDIF};
 
 type
 
@@ -87,10 +87,10 @@ type
 
   TEdzFaceModels = class(TFaceModels)
   private
-    FBitmap: TIEBitmap;
+    FBitmap: TBitmap;
     FRyID: String;
     FParams: String;
-    procedure SetBitmap(const Value: TIEBitmap);
+    procedure SetBitmap(const Value: TBitmap);
     procedure SetParams(const Value: String);
     procedure SetRyID(const Value: String);
   public
@@ -98,7 +98,7 @@ type
     destructor Destroy; override;
     procedure Assign(ASource: TFaceModels); override;
     procedure Clear; override;
-    property Bitmap: TIEBitmap read FBitmap write SetBitmap;
+    property Bitmap: TBitmap read FBitmap write SetBitmap;
     property RyID: String read FRyID write SetRyID;
     property Params: String read FParams write SetParams;
   end;
@@ -167,11 +167,11 @@ type
       ADrawIndex: Boolean = true; AZoomRotation: Double = 1; ATextSize: Integer =
       0; AAlphaBlend: Boolean = false; ASourceConstantAlpha: Integer = 180;
       ABlendColor: TColor = -1);
-    class procedure DrawFaceRect(ACanvas: TCanvas; AFaceIdx: Integer; AFaceInfo:
-      AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; APenWidth: Integer = 2;
-      ADrawIndex: Boolean = true; AZoomRotation: Double = 1; ATextSize: Integer =
-      0; AAlphaBlend: Boolean = false; ASourceConstantAlpha: Integer = 180;
-      ABlendColor: TColor = -1);
+    class procedure DrawFaceRect(ACanvas: TCanvas; AFaceIdx: Integer; AFaceRect:
+      MRECT; AColor: TColor = clBlue; APenWidth: Integer = 2; ADrawIndex: Boolean
+      = true; AZoomRotation: Double = 1; ATextSize: Integer = 12; AAlphaBlend:
+      Boolean = false; ASourceConstantAlpha: Integer = 180; ABlendColor: TColor =
+      -1);
     function TrackFacesFromBmpFile(AFile: string;
       var AFaceRegions: TList<AFR_FSDK_FACEINPUT>): Boolean;
     class procedure ExtractFaceBoxs(AFaces: AFD_FSDK_FACERES;
@@ -229,7 +229,7 @@ type
       var AFaceRes: AFIC_FSDK_FACERES; AThreshold: Single = 0.82)
       : Boolean; overload;
     function RzFicFaceDataFeatureExtractionFromBmp(ABitmap: TBitmap; isVideo:
-        Boolean; var AFaceRes: AFIC_FSDK_FACERES): Boolean; overload;
+      Boolean; var AFaceRes: AFIC_FSDK_FACERES): Boolean; overload;
     function RzFicFaceDataFeatureExtractionFromBmp(ARyZP: TBitmap;
       isVideo: Boolean): Boolean; overload;
     function RzFicFaceDataFeatureExtractionFromBmpFile(AFile: String; isVideo:
@@ -283,10 +283,12 @@ type
 
 implementation
 
+{$INCLUDE ArcFaceRZDllKeys.inc}
+
+
 constructor TArcFaceSDK.Create;
 begin
   inherited;
-
   // 加载SDK授权信息
 {$INCLUDE ArcFaceKeys.inc}
   FWorkKBufferSize := 40 * 1024 * 1024;
@@ -1006,10 +1008,10 @@ end;
 
 // 在Canvas上画人脸框
 class procedure TArcFaceSDK.DrawFaceRect(ACanvas: TCanvas; AFaceIdx: Integer;
-  AFaceInfo: AFR_FSDK_FACEINPUT; AColor: TColor = clBlue; APenWidth: Integer
-  = 2; ADrawIndex: Boolean = true; AZoomRotation: Double = 1; ATextSize:
-  Integer = 0; AAlphaBlend: Boolean = false; ASourceConstantAlpha: Integer =
-  180; ABlendColor: TColor = -1);
+  AFaceRect: MRECT; AColor: TColor = clBlue; APenWidth: Integer = 2;
+  ADrawIndex: Boolean = true; AZoomRotation: Double = 1; ATextSize: Integer =
+  12; AAlphaBlend: Boolean = false; ASourceConstantAlpha: Integer = 180;
+  ABlendColor: TColor = -1);
 var
   sText: string;
   iTextHeight, iTextWidth: Integer;
@@ -1020,14 +1022,14 @@ begin
   ACanvas.Brush.Style := bsClear;
   // if ATextSize = 0 then
   // ACanvas.Font.Size :=
-  // Round((AFaceInfo.FaceRect.bottom - AFaceInfo.FaceRect.top) / (10 * 1.5))
+  // Round((AFaceRect.FaceRect.bottom - AFaceRect.FaceRect.top) / (10 * 1.5))
   // else
   ACanvas.Font.Name := '微软雅黑';
   ACanvas.Font.Size := Round(ATextSize / AZoomRotation);
   ACanvas.Font.Color := AColor;
 
-  ACanvas.RoundRect(AFaceInfo.rcFace.left, AFaceInfo.rcFace.top,
-    AFaceInfo.rcFace.right, AFaceInfo.rcFace.bottom, 0, 0);
+  ACanvas.RoundRect(AFaceRect.left, AFaceRect.top,
+    AFaceRect.right, AFaceRect.bottom, 0, 0);
 
   sText := '';
   if ADrawIndex then
@@ -1049,21 +1051,21 @@ begin
       ACanvas.Font.Color := clWhite;
     ACanvas.Font.Quality := fqClearType;
 
-    ACanvas.RoundRect(AFaceInfo.rcFace.left, AFaceInfo.rcFace.top - iTextHeight
-      - 6, max(AFaceInfo.rcFace.right, AFaceInfo.rcFace.left + iTextWidth + 10),
-      AFaceInfo.rcFace.top, 0, 0);
+    ACanvas.RoundRect(AFaceRect.left, AFaceRect.top - iTextHeight
+      - 6, max(AFaceRect.right, AFaceRect.left + iTextWidth + 10),
+      AFaceRect.top, 0, 0);
 
-    ACanvas.TextOut(Round((AFaceInfo.rcFace.left - iTextWidth) / 2),
-      AFaceInfo.rcFace.top - 3 - iTextHeight, sText);
+    ACanvas.TextOut(Round((AFaceRect.left - iTextWidth) / 2),
+      AFaceRect.top - 3 - iTextHeight, sText);
   end;
 
   // 画半透明
   if AAlphaBlend then
   begin
-    DrawAlpha(ACanvas, AFaceInfo.rcFace.right, AFaceInfo.rcFace.bottom,
-      AFaceInfo.rcFace.left + ACanvas.Pen.Width, AFaceInfo.rcFace.top +
-      ACanvas.Pen.Width, AFaceInfo.rcFace.right - ACanvas.Pen.Width,
-      AFaceInfo.rcFace.bottom - ACanvas.Pen.Width, 0, 0, ASourceConstantAlpha,
+    DrawAlpha(ACanvas, AFaceRect.right, AFaceRect.bottom,
+      AFaceRect.left + ACanvas.Pen.Width, AFaceRect.top +
+      ACanvas.Pen.Width, AFaceRect.right - ACanvas.Pen.Width,
+      AFaceRect.bottom - ACanvas.Pen.Width, 0, 0, ASourceConstantAlpha,
       ABlendColor);
   end;
 
@@ -1367,9 +1369,9 @@ begin
 
   GetMem(FpFaceDetectionBuf, FWorkKBufferSize);
   // 初始化引擎
-  Result := AFD_FSDK_InitialFaceEngine(pansichar(AnsiString(FAppID)),
-    // [in]  APPID
-    pansichar(AnsiString(FFaceDetectionKey)), // [in]  SDKKEY
+  Result := AFD_FSDK_InitialFaceEngine(
+    pansichar(AnsiString({$IFDEF RZSDK_AS_NORMAL}RZ_APPID_DLL{$ELSE} FAppID{$ENDIF} )), // [in]  APPID
+    pansichar(AnsiString({$IFDEF RZSDK_AS_NORMAL}RZ_FaceDetectionKey_DLL{$ELSE}FFaceDetectionKey{$ENDIF})), // [in]  SDKKEY
     FpFaceDetectionBuf, // [in]	 User allocated memory for the engine
     FWorkKBufferSize, // WORKBUF_SIZE, //[in]	 User allocated memory size
     FFaceDetectionEngine, // [out] Pointing to the detection engine.
@@ -1409,9 +1411,9 @@ begin
 
   GetMem(FpFaceTrackingBuf, FWorkKBufferSize);
   // 初始化
-  Result := AFT_FSDK_InitialFaceEngine(pansichar(AnsiString(FAppID)),
-    // [in]  APPID
-    pansichar(AnsiString(FFaceTrackingKey)), // [in]  SDKKEY
+  Result := AFT_FSDK_InitialFaceEngine(
+    pansichar(AnsiString({$IFDEF RZSDK_AS_NORMAL} RZ_APPID_DLL{$ELSE}FAppID{$ENDIF})), // [in]  APPID
+    pansichar(AnsiString({$IFDEF RZSDK_AS_NORMAL} RZ_FaceTrackingKey_DLL{$ELSE}FFaceTrackingKey{$ENDIF})), // [in]  SDKKEY
     FpFaceTrackingBuf, // [in]	 User allocated memory for the engine
     FWorkKBufferSize, // WORKBUF_SIZE, //[in]	 User allocated memory size
     FFaceTrackingEngine, // [out] Pointing to the Tracking engine.
@@ -1449,9 +1451,9 @@ begin
   end;
 
   GetMem(FpFaceRecognitionBuf, FWorkKBufferSize);
-  Result := AFR_FSDK_InitialEngine(pansichar(AnsiString(FAppID)),
-    // [in]  APPID
-    pansichar(AnsiString(FFaceRecognitionKey)), // [in]  SDKKEY
+  Result := AFR_FSDK_InitialEngine(
+    pansichar(AnsiString({$IFDEF RZSDK_AS_NORMAL}FAPPID_FIC{$ELSE}FAppID{$ENDIF})), // [in]  APPID
+    pansichar(AnsiString({$IFDEF RZSDK_AS_NORMAL}FFaceRZKey_FIC{$ELSE}FFaceRecognitionKey{$ENDIF})), // [in]  SDKKEY
     FpFaceRecognitionBuf, // [in]	 User allocated memory for the engine
     FWorkKBufferSize, // WORKBUF_SIZE, //[in]	 User allocated memory size
     FFaceRecognitionEngine);
@@ -1655,7 +1657,8 @@ begin
 end;
 
 // 读取Bitmap到到图像数据结构
-class function TArcFaceSDK.ReadBmp(ABitmap: TBitmap;
+class
+  function TArcFaceSDK.ReadBmp(ABitmap: TBitmap;
   var AImgDataInfo: TImgDataInfo): Boolean;
 var
   iLineByte: Integer;
@@ -1710,7 +1713,8 @@ begin
 end;
 
 // 读取磁盘上的BMP文件到图像数据结构
-class function TArcFaceSDK.ReadBmpFile(AFileName: string;
+class
+  function TArcFaceSDK.ReadBmpFile(AFileName: string;
   var AImgDataInfo: TImgDataInfo): Boolean;
 var
   lBitmap: TBitmap;
@@ -1731,7 +1735,8 @@ begin
 end;
 
 // 读取磁盘上的BMP文件到内存并转换为TBitmap
-class function TArcFaceSDK.ReadBmpFile(AFileName: string;
+class
+  function TArcFaceSDK.ReadBmpFile(AFileName: string;
   ABitmap: TBitmap): Boolean;
 begin
 
@@ -1745,7 +1750,8 @@ begin
 end;
 
 // 读取磁盘上的JPG文件到内存并转换为TBitmap
-class function TArcFaceSDK.ReadJpegFile(AFileName: string;
+class
+  function TArcFaceSDK.ReadJpegFile(AFileName: string;
   var AImgDataInfo: TImgDataInfo): Boolean;
 var
   lBitmap: TBitmap;
@@ -1769,7 +1775,8 @@ begin
 end;
 
 // 读取BMP流到图像数据结构
-class function TArcFaceSDK.ReadBmpStream(AStream: TMemoryStream;
+class
+  function TArcFaceSDK.ReadBmpStream(AStream: TMemoryStream;
   var AImgDataInfo: TImgDataInfo): Boolean;
 var
   lBitmap: TBitmap;
@@ -1790,7 +1797,8 @@ begin
 end;
 
 // 读取磁盘上的JPG文件到内存并转换为TBitmap
-class function TArcFaceSDK.ReadJpegFile(AFileName: string;
+class
+  function TArcFaceSDK.ReadJpegFile(AFileName: string;
   ABitmap: TBitmap): Boolean;
 var
   lJpeg: TuJpegImage;
@@ -1828,7 +1836,8 @@ end;
 {$IFDEF ARC_RZ_SDK}
 
 
-function TArcFaceSDK.RzFicCompareFromBmp(AZjz, ARyZP: TBitmap; isVideo: Boolean;
+function TArcFaceSDK.RzFicCompareFromBmp(AZjz, ARyZP: TBitmap;
+  isVideo: Boolean;
   var ASimilarScore: Single; var ACompareResult: Integer;
   var AFaceRes: AFIC_FSDK_FACERES; AThreshold: Single = 0.82): Boolean;
 begin
@@ -1839,7 +1848,6 @@ begin
         AThreshold);
 end;
 {$ENDIF}
-
 { -------------------------------------------------------------------------------
   过程名:    TArcFaceSDK.RzFicFaceDataFeatureExtractionFromBmp
   作者:      NJTZ
@@ -1855,7 +1863,7 @@ end;
 
 
 function TArcFaceSDK.RzFicFaceDataFeatureExtractionFromBmp(ABitmap: TBitmap;
-    isVideo: Boolean; var AFaceRes: AFIC_FSDK_FACERES): Boolean;
+  isVideo: Boolean; var AFaceRes: AFIC_FSDK_FACERES): Boolean;
 var
   lRyzpData: TImgDataInfo;
   RyZPInput: ASVLOFFSCREEN;
@@ -1930,7 +1938,6 @@ begin
   Result := RzFicFaceDataFeatureExtractionFromBmp(ARyZP, isVideo, lFaceRes);
 end;
 {$ENDIF}
-
 { -------------------------------------------------------------------------------
   过程名:    TArcFaceSDK.RzFicFaceDataFeatureExtractionFromBmpFile
   作者:      NJTZ
@@ -1961,7 +1968,6 @@ begin
   end;
 end;
 {$ENDIF}
-
 { -------------------------------------------------------------------------------
   过程名:    TArcFaceSDK.RzFicFaceDataFeatureExtractionFromBmpFile
   作者:      NJTZ
@@ -1980,10 +1986,10 @@ function TArcFaceSDK.RzFicFaceDataFeatureExtractionFromBmpFile(AFile: String;
 var
   lFaceRes: AFIC_FSDK_FACERES;
 begin
-  Result := RzFicFaceDataFeatureExtractionFromBmpFile(AFile, isVideo, lFaceRes);
+  Result := RzFicFaceDataFeatureExtractionFromBmpFile(AFile, isVideo,
+    lFaceRes);
 end;
 {$ENDIF}
-
 { -------------------------------------------------------------------------------
   过程名:    TArcFaceSDK.RzFicIdCardDataFeatureExtractionFromBmp
   作者:      NJTZ
@@ -2135,7 +2141,6 @@ begin
         AThreshold);
 end;
 {$ENDIF}
-
 { -------------------------------------------------------------------------------
   过程名:    TArcFaceSDK.RzFicCompareFromBmpFile
   作者:      NJTZ
@@ -2153,11 +2158,11 @@ function TArcFaceSDK.RzFicCompareFromBmpFile(AZjzFile, ARyZPFile: string;
 var
   lFaceRes: AFIC_FSDK_FACERES;
 begin
-  Result := RzFicCompareFromBmpFile(AZjzFile, ARyZPFile, isVideo, ASimilarScore,
+  Result := RzFicCompareFromBmpFile(AZjzFile, ARyZPFile, isVideo,
+    ASimilarScore,
     ACompareResult, lFaceRes, AThreshold);
 end;
 {$ENDIF}
-
 { -------------------------------------------------------------------------------
   过程名:    TArcFaceSDK.RzFicIdCardDataFeatureExtractionFromBmpFile
   作者:      NJTZ
@@ -2529,7 +2534,7 @@ begin
   inherited;
   FRyID := '';
   FParams := '';
-  FBitmap := TIEBitmap.Create;
+  FBitmap := TBitmap.Create;
 end;
 
 destructor TEdzFaceModels.Destroy;
@@ -2570,7 +2575,7 @@ begin
   end;
 end;
 
-procedure TEdzFaceModels.SetBitmap(const Value: TIEBitmap);
+procedure TEdzFaceModels.SetBitmap(const Value: TBitmap);
 begin
   FBitmap.Assign(Value);
   FChanged := true;

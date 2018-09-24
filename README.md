@@ -25,13 +25,17 @@ arcsoft_fsdk_fic.pas	虹软人证SDK  API C++头文件翻译
 
 asvloffscreenDef.pas	虹软公共C++头文件翻译
 
-BmpDemo	基于TArcFaceSDK的DEMO，无需其他第三方控年
-
-BmpRZDemo	基于TArcFaceSDK的人证SDK DEMO，无需其他第三方控年
-
-IEDemo	基于TArcFaceSDKIEVersion的DEMO，需ImageEN支持
-
 merrorDef.pas	虹软错误代码定义
+
+Demo	演示项目
+
+Demo\BmpDemo	基于TArcFaceSDK的DEMO，无需其他第三方控年
+
+Demo\BmpRZDemo	基于TArcFaceSDK的人证SDK DEMO，无需其他第三方控年
+
+Demo\IEDemo	基于TArcFaceSDKIEVersion的DEMO，需ImageEN支持
+
+Demo\IERZDemo	基于TArcFaceSDKIEVersion的人证SDK DEMO，需ImageEN支持
 
 README.md	说明文档
 
@@ -62,10 +66,18 @@ SDK下载：http://www.arcsoft.com.cn/ai/arcface.html
 
 
 ## 更新历史
+2018.9.24
+
+1、移除 ArcFaceSDK 单元对 ImageEN 的依赖
+
+2、移动所有DEMO到demo目录下
+
+3、新增基于 ImageEN 的人证SDK DEMO （IERzDemo）
+
 2018.9.23
 
 1、新增对人证SDK的支持，可以提高二代证芯片中照片的1:1比对相似度20%左右，官方推荐相似度 0.82 以上即可认定同一人
 
-2、修正 TArcFaceSDK DrawFaceRect、DrawFaceRectAgeGender函数字体问题，根据图像缩放率自动调整字体大小，保存摄像头缩放后字体仍清晰，并增加人脸框区域透明叠加支持
+2、修正 TArcFaceSDK DrawFaceRect、DrawFaceRectAgeGender函数字体问题，根据图像缩放率自动调整字体大小，保证摄像头缩放后字体仍清晰，并增加人脸框区域透明叠加支持
 
 3、新增人证SDK DEMO，在BmpRZDemo下

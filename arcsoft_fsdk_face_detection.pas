@@ -18,14 +18,18 @@
   ******************************************************************************** *)
 
 unit arcsoft_fsdk_face_detection;
-
+{$INCLUDE ArcFace.inc}
 interface
 
 uses
   Windows, Messages, SysUtils, Classes, amcomdef, asvloffscreendef;
 
 const
+{$IFDEF RZSDK_AS_NORMAL}
+  ArcDetectionDll = 'libarcsoft_fsdk_face_detection.dll';
+{$ELSE}
   ArcDetectionDll = 'libarcsoft_fsdk_face_n_detection.dll';
+{$ENDIF}
 
 type
   AFD_FSDK_OrientPriority = MInt32;

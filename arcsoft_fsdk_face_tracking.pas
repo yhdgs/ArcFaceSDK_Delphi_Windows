@@ -19,13 +19,20 @@
 
 unit arcsoft_fsdk_face_tracking;
 
+{$INCLUDE ArcFace.inc}
+
 interface
 
 uses
   Windows, Messages, SysUtils, Classes, amcomdef, asvloffscreendef;
 
 const
+{$IFDEF RZSDK_AS_NORMAL}
+  ArcTrackingDll = 'libarcsoft_fsdk_face_tracking.dll';
+{$ELSE}
   ArcTrackingDll = 'libarcsoft_fsdk_face_n_tracking.dll';
+{$ENDIF}
+
 
 type
   AFT_FSDK_OrientPriority = MInt32;
@@ -37,37 +44,37 @@ type
     FaceTracking Orientation Priority
     ****************************************************************************************** *)
 const
-  AFT_FSDK_OPF_0_ONLY = $1; //0; 0; ...
-  AFT_FSDK_OPF_90_ONLY = $2; //90; 90; ...
-  AFT_FSDK_OPF_270_ONLY = $3; //270; 270; ...
-  AFT_FSDK_OPF_180_ONLY = $4; //180; 180; ...
-  AFT_FSDK_OPF_0_HIGHER_EXT = $5; //0; 90; 270; 180; 0; 90; 270; 180; ...
+  AFT_FSDK_OPF_0_ONLY = $1; // 0; 0; ...
+  AFT_FSDK_OPF_90_ONLY = $2; // 90; 90; ...
+  AFT_FSDK_OPF_270_ONLY = $3; // 270; 270; ...
+  AFT_FSDK_OPF_180_ONLY = $4; // 180; 180; ...
+  AFT_FSDK_OPF_0_HIGHER_EXT = $5; // 0; 90; 270; 180; 0; 90; 270; 180; ...
 
-  //type
-  //_AFT_FSDK_OrientPriority = AFT_FSDK_OPF_0_ONLY .. AFT_FSDK_OPF_0_HIGHER_EXT;
-  //{$EXTERNALSYM _AFT_FSDK_OrientPriority}
+  // type
+  // _AFT_FSDK_OrientPriority = AFT_FSDK_OPF_0_ONLY .. AFT_FSDK_OPF_0_HIGHER_EXT;
+  // {$EXTERNALSYM _AFT_FSDK_OrientPriority}
 
   (* ******************************************************************************************
     FaceTracking Face Orientation
     ****************************************************************************************** *)
-  AFT_FSDK_FOC_0 = $1; //0 degree
-  AFT_FSDK_FOC_90 = $2; //90 degree
-  AFT_FSDK_FOC_270 = $3; //270 degree
-  AFT_FSDK_FOC_180 = $4; //180 degree;
+  AFT_FSDK_FOC_0 = $1; // 0 degree
+  AFT_FSDK_FOC_90 = $2; // 90 degree
+  AFT_FSDK_FOC_270 = $3; // 270 degree
+  AFT_FSDK_FOC_180 = $4; // 180 degree;
 
-  //type
-  //_AFT_FSDK_OrientCode = AFT_FSDK_FOC_0 .. AFT_FSDK_FOC_180;
-  //{$EXTERNALSYM _AFT_FSDK_OrientCode}
+  // type
+  // _AFT_FSDK_OrientCode = AFT_FSDK_FOC_0 .. AFT_FSDK_FOC_180;
+  // {$EXTERNALSYM _AFT_FSDK_OrientCode}
   (* ******************************************************************************************
     FaceTracking Face Information
     ****************************************************************************************** *)
 type
   AFT_FSDK_FACERES = record
-    nFace: MInt32; //number of faces detected
+    nFace: MInt32; // number of faces detected
     lfaceOrient:
-      IntPtr; //AFT_FSDK_OrientCode; //the face angle
+      IntPtr; // AFT_FSDK_OrientCode; //the face angle
     rcFace:
-      IntPtr; //MRECT *; //The bounding box of face
+      IntPtr; // MRECT *; //The bounding box of face
   end;
 
   LPAFT_FSDK_FACERES = ^AFT_FSDK_FACERES;
@@ -76,19 +83,19 @@ type
     FaceTracking Version Information
     ****************************************************************************************** *)
   AFT_FSDK_Version = record
-    lCodebase: MInt32; //Codebase version number
+    lCodebase: MInt32; // Codebase version number
     lMajor:
-      MInt32; //Major version number
+      MInt32; // Major version number
     lMinor:
-      MInt32; //Minor version number
+      MInt32; // Minor version number
     lBuild:
-      MInt32; //Build version number, increasable only
+      MInt32; // Build version number, increasable only
     Version:
-      MPChar; //Version in string form
+      MPChar; // Version in string form
     BuildDate:
-      MPChar; //Latest build Date
+      MPChar; // Latest build Date
     CopyRight:
-      MPChar; //Copyright
+      MPChar; // Copyright
   end;
 
   LPAFT_FSDK_Version = ^AFT_FSDK_Version;
@@ -97,15 +104,15 @@ type
     * The aFunction used to Initialize the face tracking engine.
     *********************************************************************** *)
 function AFT_FSDK_InitialFaceEngine(
-  AppId: MPChar; //[in]  APPID
-  SDKKey: MPChar; //[in]  SDKKEY
-  pMem: PByte; //[in]	User allocated memory for the engine
-  lMemSize: MInt32; //[in]	User allocated memory size
-  var hEngine: MHandle; //[out] Pointing to the tracking engine
-  //[in]  Defining the priority of face orientation.
+  AppId: MPChar; // [in]  APPID
+  SDKKey: MPChar; // [in]  SDKKEY
+  pMem: PByte; // [in]	User allocated memory for the engine
+  lMemSize: MInt32; // [in]	User allocated memory size
+  var hEngine: MHandle; // [out] Pointing to the tracking engine
+  // [in]  Defining the priority of face orientation.
   iOrientPriority: AFT_FSDK_OrientPriority;
-  nScale: MInt32; //[in]  An integer defining the minimal face to detect
-  nMaxFaceNum: MInt32 //[in]  An integer defining the number of max faces
+  nScale: MInt32; // [in]  An integer defining the minimal face to detect
+  nMaxFaceNum: MInt32 // [in]  An integer defining the number of max faces
   ): MRESULT; Cdecl; external ArcTrackingDll;
 
 (* ***********************************************************************
@@ -115,16 +122,16 @@ function AFT_FSDK_InitialFaceEngine(
   *  passed to this interface in the next calling round.
   *********************************************************************** *)
 function AFT_FSDK_FaceFeatureDetect(
-  hEngine: MHandle; //[in]  The face tracking engine
-  pImgData: LPASVLOFFSCREEN; //[in]  The original image data
-  var FaceRes: LPAFT_FSDK_FACERES //[out] The tracking result
+  hEngine: MHandle; // [in]  The face tracking engine
+  pImgData: LPASVLOFFSCREEN; // [in]  The original image data
+  var FaceRes: LPAFT_FSDK_FACERES // [out] The tracking result
   ): MRESULT; Cdecl; external ArcTrackingDll;
 
 (* ***********************************************************************
   * The aFunction used to Uninitialize the tracking module.
   *********************************************************************** *)
 function AFT_FSDK_UninitialFaceEngine(
-  hEngine: MHandle //[in] The face tracking engine
+  hEngine: MHandle // [in] The face tracking engine
   ): MRESULT; Cdecl; external ArcTrackingDll;
 
 (* ***********************************************************************

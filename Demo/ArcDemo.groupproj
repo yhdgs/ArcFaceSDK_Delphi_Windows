@@ -1,0 +1,72 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{8CC693DC-8EDA-438A-A1B2-05D1BE964E22}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="BmpDemo\ArcBmpTest.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="BmpRZDemo\ArcBmpRZTest.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="IEDemo\ArcIETest.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="IERzDemo\ArcIERZTest.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="ArcBmpTest">
+        <MSBuild Projects="BmpDemo\ArcBmpTest.dproj"/>
+    </Target>
+    <Target Name="ArcBmpTest:Clean">
+        <MSBuild Projects="BmpDemo\ArcBmpTest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ArcBmpTest:Make">
+        <MSBuild Projects="BmpDemo\ArcBmpTest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ArcBmpRZTest">
+        <MSBuild Projects="BmpRZDemo\ArcBmpRZTest.dproj"/>
+    </Target>
+    <Target Name="ArcBmpRZTest:Clean">
+        <MSBuild Projects="BmpRZDemo\ArcBmpRZTest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ArcBmpRZTest:Make">
+        <MSBuild Projects="BmpRZDemo\ArcBmpRZTest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ArcIETest">
+        <MSBuild Projects="IEDemo\ArcIETest.dproj"/>
+    </Target>
+    <Target Name="ArcIETest:Clean">
+        <MSBuild Projects="IEDemo\ArcIETest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ArcIETest:Make">
+        <MSBuild Projects="IEDemo\ArcIETest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ArcIERZTest">
+        <MSBuild Projects="IERzDemo\ArcIERZTest.dproj"/>
+    </Target>
+    <Target Name="ArcIERZTest:Clean">
+        <MSBuild Projects="IERzDemo\ArcIERZTest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ArcIERZTest:Make">
+        <MSBuild Projects="IERzDemo\ArcIERZTest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="ArcBmpTest;ArcBmpRZTest;ArcIETest;ArcIERZTest"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="ArcBmpTest:Clean;ArcBmpRZTest:Clean;ArcIETest:Clean;ArcIERZTest:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="ArcBmpTest:Make;ArcBmpRZTest:Make;ArcIETest:Make;ArcIERZTest:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
