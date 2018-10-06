@@ -1,37 +1,39 @@
 ﻿# ArcFaceSDK_Delphi
-基于虹软免费人脸识别库的Delphi封装，支持检测、跟踪、验证、年龄、性别功能
+基于虹软免费人脸识别库（Windows版）的Delphi(10.2.3)封装，支持检测、跟踪、验证、年龄、性别功能
 
 ## 文件列表
 
-ArcFaceSDK.pas	基于 TBitmap 封装
+Source	源码目录
 
-ArcFaceSDKIEVersion.pas	基于 ImageEN 封装
+Source\ArcFaceSDK.pas	基于 TBitmap 封装
 
-amcomDef.pas	虹软公共C++头文件翻译
+Source\ArcFaceSDKIEVersion.pas	基于 ImageEN 封装
 
-ammemDef.pas	虹软公共C++头文件翻译
+Source\amcomDef.pas	虹软公共C++头文件翻译
 
-arcsoft_fsdk_age_estimation.pas	虹软年龄识别API C++头文件翻译
+Source\ammemDef.pas	虹软公共C++头文件翻译
 
-arcsoft_fsdk_face_detection.pas	虹软人脸检测API C++头文件翻译
+Source\arcsoft_fsdk_age_estimation.pas	虹软年龄识别API C++头文件翻译
 
-arcsoft_fsdk_face_recognition.pas	虹软人脸特征提取API C++头文件翻译
+Source\arcsoft_fsdk_face_detection.pas	虹软人脸检测API C++头文件翻译
 
-arcsoft_fsdk_face_tracking.pas	虹软人脸追踪API C++头文件翻译
+Source\arcsoft_fsdk_face_recognition.pas	虹软人脸特征提取API C++头文件翻译
 
-arcsoft_fsdk_gender_estimation.pas	虹软性别识别API C++头文件翻译
+Source\arcsoft_fsdk_face_tracking.pas	虹软人脸追踪API C++头文件翻译
 
-arcsoft_fsdk_fic.pas	虹软人证SDK  API C++头文件翻译
+Source\arcsoft_fsdk_gender_estimation.pas	虹软性别识别API C++头文件翻译
 
-asvloffscreenDef.pas	虹软公共C++头文件翻译
+Source\arcsoft_fsdk_fic.pas	虹软人证SDK  API C++头文件翻译
 
-merrorDef.pas	虹软错误代码定义
+Source\asvloffscreenDef.pas	虹软公共C++头文件翻译
 
-Demo	演示项目
+Source\merrorDef.pas	虹软错误代码定义
+
+Demo	演示项目（Delphi10.2.3编译通过）
 
 Demo\BmpDemo	基于TArcFaceSDK的DEMO，无需其他第三方控年
 
-Demo\BmpRZDemo	基于TArcFaceSDK的人证SDK DEMO，无需其他第三方控年
+Demo\BmpRZDemo	基于TArcFaceSDK的人证SDK DEMO，无需其他第三方控
 
 Demo\IEDemo	基于TArcFaceSDKIEVersion的DEMO，需ImageEN支持
 
@@ -66,6 +68,11 @@ SDK下载：http://www.arcsoft.com.cn/ai/arcface.html
 
 
 ## 更新历史
+
+2018.10.07
+
+1、移动源码目录到Source下
+
 2018.9.24
 
 1、移除 ArcFaceSDK 单元对 ImageEN 的依赖
